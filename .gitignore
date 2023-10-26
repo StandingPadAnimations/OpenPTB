@@ -1,0 +1,10 @@
+# IDE Settings
+.vscode/
+
+# Run artefacts
+__pycache__
+*_updater/
+
+
+# Release files
+PidgeonToolBag.zip
