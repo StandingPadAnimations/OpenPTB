@@ -48,12 +48,12 @@ class SFR_Settings(PropertyGroup):
 
     optimization_method: EnumProperty(
         items=[
-            ("AUTO", "Automatic", "Benchmark"),
-            ("MANUAL", "Manual", "Manual"),
+            ("AUTO", "Automatic", "Use the benchmark to determine the best settings"),
+            ("MANUAL", "Manual", "Use presets or custom settings to optimize the scene"),
         ],
         default="AUTO",
         name="Optimization Method",
-        description="Optimization Method",
+        description="The optimization method to use.\nRecommended: Automatic",
     )
 
     # General Settings
@@ -61,7 +61,7 @@ class SFR_Settings(PropertyGroup):
     benchmark_path: StringProperty(
         default="//SFR/",
         name="Benchmark Path",
-        description="Benchmark Path",
+        description="The working directory for the benchmark.\nRecommended: //SFR/",
         subtype="DIR_PATH",
     )
 
@@ -70,7 +70,7 @@ class SFR_Settings(PropertyGroup):
         min=1,
         max=20,
         name="Benchmark Resolution",
-        description="Benchmark Resolution",
+        description="Render the scene at a scaled resolution to speed up the benchmark.\nHigher values will result in a more accurate benchmark, but will take longer to process.\nRecommended: 5%",
         subtype="PERCENTAGE",
     )
 
@@ -79,37 +79,31 @@ class SFR_Settings(PropertyGroup):
         min=0.01,
         max=1.0,
         name="Threshold",
-        description="Threshold",
+        description="The threshold for the benchmark.\nLower values will result in a more accurate benchmark, but will take longer to process.\nRecommended: 0.1",
         subtype="FACTOR",
     )
 
     benchmark_add_keyframes: BoolProperty(
         default=True,
         name="Add Keyframes",
-        description="Add Keyframes",
+        description="Keyframes the settings set by the benchmark.\nUseful for animation.\nRecommended: Enabled",
     )
 
     benchmark_scene_type: EnumProperty(
         items=[
             ("INTERIOR", "Interior Scene", "Interior Scenes need a few more bounces, take that into consieration when benchmarking"),
             ("EXTERIOR", "Exterior Scene", "Exterior Scene need fewer bounces, take that into consieration when benchmarking"),
-            ("CUSTOM", "Custom", "Custom")
+            ("CUSTOM", "Custom", "Set a custom benchmarking approach")
         ],
         default="INTERIOR",
         name="Scene Type",
-        description="Scene Type",
-    )
-
-    benchmark_scene_starting_bounces: StringProperty(
-        default="0,0,0,0,0,0,0,0",
-        name="Starting Bounces",
-        description="Starting Bounces",
+        description="Depending on the scene, you may need a different benchmarking approach",
     )
 
     benchmark_scene_bounce_order: StringProperty(
         default="4,0,1,2,4,3,5,6",
         name="Bounce Order",
-        description="Bounce Order",
+        description="Determines the order in which the bounces are benchmarked.\nRecommended: 4,0,1,2,4,3,5,6",
     )
 
     # Texture Optimization
