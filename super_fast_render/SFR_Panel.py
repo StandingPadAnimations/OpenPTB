@@ -50,6 +50,7 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
                     col.prop(settings, "benchmark_resolution", text="Benchmark Resolution", slider=True)
                     col.prop(settings, "benchmark_threshold", text="Threshold", slider=True)
                     col = boxcol_rso.column()
+                    col.prop(settings, "benchmark_add_keyframes", toggle=True)
                     col.prop(settings, "benchmark_scene_type", text="Scene Type")
                     if settings.benchmark_scene_type == "CUSTOM":
                         col = boxcol_rso.column()

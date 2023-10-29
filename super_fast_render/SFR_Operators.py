@@ -80,7 +80,8 @@ class SFR_OT_Benchmark_Frame(Operator):
             "denoiser": cycles.use_denoising,
             "samples": cycles.samples,
             "adaptive_sampling": cycles.use_adaptive_sampling,
-            "output_format": context.scene.render.image_settings.file_format
+            "output_format": context.scene.render.image_settings.file_format,
+            "compositor": context.scene.use_nodes
         }
 
         # Apply new settings
@@ -94,8 +95,6 @@ class SFR_OT_Benchmark_Frame(Operator):
         cycles.sample_clamp_indirect = 0
         cycles.use_light_tree = True
         cycles.blur_glossy = 1
-        cycles.caustics_reflective = True
-        cycles.caustics_refractive = True
         cycles.debug_use_spatial_splits = True
         cycles.debug_use_hair_bvh = True
         cycles.debug_use_compact_bvh = False
@@ -104,6 +103,7 @@ class SFR_OT_Benchmark_Frame(Operator):
         context.scene.render.image_settings.color_mode = 'RGBA'
         context.scene.render.image_settings.color_depth = '16'
         context.scene.render.image_settings.compression = 0
+        context.scene.use_nodes = False
         
         return old_settings
     
@@ -146,19 +146,28 @@ class SFR_OT_Benchmark_Frame(Operator):
         threshold = settings.benchmark_threshold * 10
 
         for bounce_type in bounce_order:
+            
+            bounce_type_name = [
+                "diffuse_bounces",
+                "glossy_bounces",
+                "transmission_bounces",
+                "volume_bounces",
+                "transparent_max_bounces",
+                "caustics_reflective",
+                "caustics_refractive"
+            ][bounce_type]
+
             print(bcolors.OKCYAN, f"Benchmarking {['diffuse', 'glossy', 'transmission', 'volume', 'transparent', 'reflective', 'refractive'][bounce_type]} bounces...", bcolors.ENDC)
             previous_image_path = None
 
             while True:
                 # Render current settings
                 set_bounces(bounces)
+                if settings.benchmark_add_keyframes:  context.scene.keyframe_insert(data_path=f"cycles.{bounce_type_name}")
                 current_image_path = bpy.path.abspath(f"{settings.benchmark_path}/Benchmark/image_{bounce_type}_{sum(bounces)}.png")
                 render_time = render_image(current_image_path)
                 render_time = round(render_time, 2)
                 bounces[bounce_type] += 1
-
-                # Wait for the file to be fully written
-                time.sleep(0.01)
 
                 # Compare with previous image if it exists
                 if previous_image_path:
@@ -187,10 +196,12 @@ class SFR_OT_Benchmark_Frame(Operator):
                     if brightness_difference <= threshold:
                         print(bcolors.OKBLUE, f"No significant improvement in {bounce_name}. Reverting.", bcolors.ENDC)
                         bounces[bounce_type] -= 2
+                        set_bounces(bounces)
+                        if settings.benchmark_add_keyframes: context.scene.keyframe_insert(data_path=f"cycles.{bounce_type_name}")
                         break
-
+                    
                     plot_data(self.bounce_data[bounce_name]["times"], self.bounce_data[bounce_name]["brightness"], self.bounce_data[bounce_name]["bounces"], bounce_name)
-
+            
                 previous_image_path = current_image_path
 
         # Restore settings after benchmarking
@@ -216,11 +227,11 @@ class SFR_OT_OpenFolderBenchmarked(Operator):
         settings = bpy.context.scene.sfr_settings
 
         # check if the folder exists
-        if not os.path.exists(os.path.join(bpy.path.abspath(settings.benchmark_path), "benchmark")):
+        if not os.path.exists(os.path.join(bpy.path.abspath(settings.benchmark_path))):
             self.report({'ERROR'}, "Folder does not exist, please benchmark first.")
             return {'CANCELLED'}
 
-        os.startfile(os.path.join(bpy.path.abspath(settings.benchmark_path), "benchmark"))
+        os.startfile(os.path.join(bpy.path.abspath(settings.benchmark_path)))
         return {'FINISHED'}
 
 

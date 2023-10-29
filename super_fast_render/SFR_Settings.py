@@ -83,6 +83,12 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
+    benchmark_add_keyframes: BoolProperty(
+        default=True,
+        name="Add Keyframes",
+        description="Add Keyframes",
+    )
+
     benchmark_scene_type: EnumProperty(
         items=[
             ("INTERIOR", "Interior Scene", "Interior Scenes need a few more bounces, take that into consieration when benchmarking"),
