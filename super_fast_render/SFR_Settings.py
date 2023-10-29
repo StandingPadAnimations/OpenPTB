@@ -40,6 +40,14 @@ class SFR_Settings(PropertyGroup):
         default=True,
     )
 
+    show_to_general: BoolProperty(
+        default=True,
+    )
+
+    show_to_advanced: BoolProperty(
+        default=False,
+    )
+
     show_mo: BoolProperty(
         default=True,
     )
@@ -108,7 +116,7 @@ class SFR_Settings(PropertyGroup):
 
     # Texture Optimization
 
-    factor_diffuse: IntProperty(
+    diffuse_factor: IntProperty(
         default=0,
         min=0,
         max=7,
@@ -117,7 +125,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_ao: IntProperty(
+    ao_factor: IntProperty(
         default=2,
         min=0,
         max=7,
@@ -126,7 +134,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_metallic: IntProperty(
+    metallic_factor: IntProperty(
         default=2,
         min=0,
         max=7,
@@ -135,7 +143,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_roughness: IntProperty(
+    roughness_factor: IntProperty(
         default=2,
         min=0,
         max=7,
@@ -144,7 +152,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_normal: IntProperty(
+    normal_factor: IntProperty(
         default=1,
         min=0,
         max=7,
@@ -153,7 +161,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_opacity: IntProperty(
+    opacity_factor: IntProperty(
         default=1,
         min=0,
         max=7,
@@ -162,7 +170,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_translucency: IntProperty(
+    translucency_factor: IntProperty(
         default=1,
         min=0,
         max=7,
@@ -171,7 +179,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_emission: IntProperty(
+    emission_factor: IntProperty(
         default=0,
         min=0,
         max=7,
@@ -180,7 +188,7 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    factor_displacement: IntProperty(
+    displacement_factor: IntProperty(
         default=0,
         min=0,
         max=7,
@@ -188,11 +196,106 @@ class SFR_Settings(PropertyGroup):
         description="Displacement",
         subtype="FACTOR",
     )
+    
+    custom1_factor: IntProperty(
+        default=0,
+        min=0,
+        max=7,
+        name="Custom 1",
+        description="Custom 1",
+        subtype="FACTOR",
+    )
+
+    custom2_factor: IntProperty(
+        default=0,
+        min=0,
+        max=7,
+        name="Custom 2",
+        description="Custom 2",
+        subtype="FACTOR",
+    )
+
+    diffuse_strings: StringProperty(
+        default="diffuse,albedo,col,diff,dif,color",
+        name="Diffuse / Albedo",
+        description="Diffuse",
+    )
+
+    ao_strings: StringProperty(
+        default="ao,ambientocclusion,occlusion",
+        name="Ambient Occlusion",
+        description="Ambient Occlusion",
+    )
+
+    metallic_strings: StringProperty(
+        default="metallic,metal,met,metalness,specular,specularity,spec,reflection,refl,ref",
+        name="Metallic / Specular",
+        description="Metallic",
+    )
+
+    roughness_strings: StringProperty(
+        default="roughness,rough,glossiness,gloss,smoothness,smooth",
+        name="Roughness / Glossiness",
+        description="Roughness",
+    )
+
+    normal_strings: StringProperty(
+        default="normal,norm,nor,nrm,bump,bmp,height",
+        name="Normal / Bump",
+        description="Normal",
+    )
+
+    opacity_strings: StringProperty(
+        default="opacity,alpha,presence,transparency,transp",
+        name="Opacity / Transparency",
+        description="Opacity",
+    )
+
+    translucency_strings: StringProperty(
+        default="translucency,translucence,translucent,transmission",
+        name="Translucency",
+        description="Translucency",
+    )
+
+    emission_strings: StringProperty(
+        default="emission,emissive,emit,glow",
+        name="Emission",
+        description="Emission",
+    )
+
+    displacement_strings: StringProperty(
+        default="displacement,displace,disp",
+        name="Displacement",
+        description="Displacement",
+    )
+
+    custom1_strings: StringProperty(
+        default="custom1",
+        name="Custom 1",
+        description="Custom 1",
+    )
+
+    custom2_strings: StringProperty(
+        default="custom2",
+        name="Custom 2",
+        description="Custom 2",
+    )
 
     backup_textures: BoolProperty(
         default=True,
         name="Create Backup",
         description="Backup Textures",
+    )
+
+    converted_texture_format: EnumProperty(
+        items=[
+            ("png", "PNG", "PNG"),
+            ("jpg", "JPEG", "JPEG (no alpha)"),
+            ("tiff", "TIFF", "TIFF"),
+        ],
+        default="png",
+        name="Converted Texture Format",
+        description="The format to convert textures to.\nRecommended: PNG",
     )
 
     # Mesh Optimization

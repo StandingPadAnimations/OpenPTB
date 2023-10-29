@@ -206,25 +206,67 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
         boxmain = colmain.box()
         template_boxtitle(settings, boxmain, "to", "Texture Optimization", "TEXTURE")
         if settings.show_to:
-            maincol = boxmain.column()
-            box = maincol.box()
-            col = box.column()
-            col.label(text="Directly Visible", icon="FACESEL")
-            col.prop(settings, "factor_diffuse", slider=True)
-            col.prop(settings, "factor_ao", slider=True)
-            col.prop(settings, "factor_translucency", slider=True)
-            col.prop(settings, "factor_emission", slider=True)
-            col.prop(settings, "factor_opacity", slider=True)
-            box = maincol.box()
-            col = box.column()
-            col.label(text="Indirectly Visible", icon="INDIRECT_ONLY_ON")
-            col.prop(settings, "factor_metallic", slider=True)
-            col.prop(settings, "factor_roughness", slider=True)
-            col.prop(settings, "factor_normal", slider=True)
-            col.prop(settings, "factor_displacement", slider=True)
-            maincol.prop(settings, "backup_textures", toggle=True)
-            maincol.separator()
-            col_action = maincol.column()
+            boxrow = boxmain.row()
+            if not dependencies.checked:
+                dependencies.check_dependencies()
+            
+            if dependencies.needs_install:
+                boxcol_to = boxmain.box()
+                boxcol_to.label(text="Dependencies not found. Please install them.", icon="ERROR")
+                boxcol_to.operator("superfastrender.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
+
+            boxcol_to = boxmain.box()
+            boxcol_to.enabled = not dependencies.needs_install
+            template_boxtitle(settings, boxcol_to, "to_general", "General Settings", "SETTINGS")
+            if settings.show_to_general:
+                box = boxcol_to.box()
+                col = box.column()
+                col.label(text="Directly Visible", icon="FACESEL")
+                col.prop(settings, "diffuse_factor", slider=True)
+                col.prop(settings, "ao_factor", slider=True)
+                col.prop(settings, "translucency_factor", slider=True)
+                col.prop(settings, "emission_factor", slider=True)
+                col.prop(settings, "opacity_factor", slider=True)
+                box = boxcol_to.box()
+                col = box.column()
+                col.label(text="Indirectly Visible", icon="INDIRECT_ONLY_ON")
+                col.prop(settings, "metallic_factor", slider=True)
+                col.prop(settings, "roughness_factor", slider=True)
+                col.prop(settings, "normal_factor", slider=True)
+                col.prop(settings, "displacement_factor", slider=True)
+                box = boxcol_to.box()
+                col = box.column()
+                col.label(text="Custom", icon="MONKEY")
+                col.prop(settings, "custom1_factor", slider=True)
+                col.prop(settings, "custom2_factor", slider=True)
+                boxcol_to.prop(settings, "backup_textures", toggle=True)
+                
+            boxcol_to = boxmain.box()
+            boxcol_to.enabled = not dependencies.needs_install
+            template_boxtitle(settings, boxcol_to, "to_advanced", "Advanced Settings", "SYSTEM")
+            if settings.show_to_advanced:
+                col = boxcol_to.column()
+                col.prop(settings, "diffuse_strings")
+                col.prop(settings, "ao_strings")
+                col.prop(settings, "translucency_strings")
+                col.prop(settings, "emission_strings")
+                col.prop(settings, "opacity_strings")
+                col.prop(settings, "metallic_strings")
+                col.prop(settings, "roughness_strings")
+                col.prop(settings, "normal_strings")
+                col.prop(settings, "displacement_strings")
+                col.prop(settings, "custom1_strings")
+                col.prop(settings, "custom2_strings")
+
+                row=col.row()
+                row.scale_x = 0.6
+                row.label(text="Convert to:")
+                row = row.row()
+                row.prop(settings, "converted_texture_format", expand=True)
+
+            boxcol_to = boxmain.box()
+            boxcol_to.enabled = not dependencies.needs_install
+            col_action = boxcol_to.column()
             col_action.scale_y = 1.5
             col_action.operator("superfastrender.texture_optimization", text="Optimize Textures", icon="NODE_TEXTURE")
 

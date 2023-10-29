@@ -9,6 +9,7 @@ from bpy.types import (
 )
 from .SRF_Functions import *
 from typing import List, NamedTuple
+from distutils.dir_util import copy_tree
 
 #region dependencies
 
@@ -119,7 +120,7 @@ class SFR_OT_Benchmark_Frame(Operator):
     
     # Render callbacks
     def execute(self, context: Context):
-        print(bcolors.OKGREEN, "Starting benchmarking...", bcolors.ENDC)
+        print(bcolors.OKGREEN + "Starting benchmarking..." + bcolors.ENDC)
         settings = bpy.context.scene.sfr_settings
         cycles = context.scene.cycles
 
@@ -157,7 +158,7 @@ class SFR_OT_Benchmark_Frame(Operator):
                 "caustics_refractive"
             ][bounce_type]
 
-            print(bcolors.OKCYAN, f"Benchmarking {['diffuse', 'glossy', 'transmission', 'volume', 'transparent', 'reflective', 'refractive'][bounce_type]} bounces...", bcolors.ENDC)
+            print(bcolors.OKCYAN + f"Benchmarking {['diffuse', 'glossy', 'transmission', 'volume', 'transparent', 'reflective', 'refractive'][bounce_type]} bounces..."+ bcolors.ENDC)
             previous_image_path = None
 
             while True:
@@ -194,7 +195,7 @@ class SFR_OT_Benchmark_Frame(Operator):
 
                     # Check if the difference is below the threshold
                     if brightness_difference <= threshold:
-                        print(bcolors.OKBLUE, f"No significant improvement in {bounce_name}. Reverting.", bcolors.ENDC)
+                        print(bcolors.OKBLUE + f"No significant improvement in {bounce_name}. Reverting."+ bcolors.ENDC)
                         bounces[bounce_type] -= 2
                         set_bounces(bounces)
                         if settings.benchmark_add_keyframes: context.scene.keyframe_insert(data_path=f"cycles.{bounce_type_name}")
@@ -213,7 +214,7 @@ class SFR_OT_Benchmark_Frame(Operator):
                 os.remove(os.path.join(bpy.path.abspath(settings.benchmark_path), "Benchmark", file))
             os.rmdir(os.path.join(bpy.path.abspath(settings.benchmark_path), "Benchmark"))
             
-        print(bcolors.OKGREEN, "Benchmarking complete.", bcolors.ENDC)
+        print(bcolors.OKGREEN + "Benchmarking complete."+ bcolors.ENDC)
         self.report({'INFO'}, "Benchmarking complete.")
 
         return {'FINISHED'}
@@ -237,6 +238,7 @@ class SFR_OT_OpenFolderBenchmarked(Operator):
 
 #endregion bechmark_frame
 
+#region previews
 class SFR_OT_Preset_Preview(Operator):
     bl_idname = "superfastrender.preset_preview"
     bl_label = "Preview Preset"
@@ -538,14 +540,69 @@ class SFR_OT_Preset_Ultra(Operator):
 
         return {'FINISHED'}
 
+#endregion previews
+
+# region textures
 class SFR_OT_Texture_Optimization(Operator):
     bl_idname = "superfastrender.texture_optimization"
     bl_label = "Texture Optimization"
     bl_description = ""
 
     def execute(self, context: Context):
-        print("Optimizing textures")
+        bpy.ops.file.pack_all()
+        bpy.ops.file.unpack_all(method="USE_LOCAL")
+        settings = bpy.context.scene.sfr_settings
+        path = bpy.path.abspath("//textures/")
+        
+        if settings.backup_textures:
+            print(bcolors.OKCYAN + "Backing up textures..."+ bcolors.ENDC)
+            from_dir = path
+            to_dir = bpy.path.abspath("//textures_backup/")
+            if not os.path.exists(to_dir):
+                os.makedirs(to_dir)
+            try:
+                copy_tree(from_dir, to_dir)
+            except:
+                print(bcolors.WARNING + "Failed to backup textures."+ bcolors.ENDC)
+                return {'CANCELLED'}
+            print(bcolors.OKGREEN + "Backup complete."+ bcolors.ENDC)
+
+        # turn strings separated by comma to array
+        diffuse_textures = settings.diffuse_strings.split(",")
+        ao_textures= settings.ao_strings.split(",")
+        metallic_textures = settings.metallic_strings.split(",")
+        roughness_textures = settings.roughness_strings.split(",")
+        normal_textures = settings.normal_strings.split(",")
+        opacity_textures = settings.opacity_strings.split(",")
+        displacement_textures = settings.displacement_strings.split(",")
+        custom1_textures = settings.custom1_strings.split(",")
+        custom2_textures = settings.custom2_strings.split(",")
+
+        # Don't resize the same texture more than once
+        resized_textures = {}
+
+        for file in os.listdir(path):
+            if not os.path.isfile(os.path.join(path, file)):
+                continue
+
+            results = [
+                resize_texture(file, settings.diffuse_factor, diffuse_textures, "diffuse", resized_textures),
+                resize_texture(file, settings.ao_factor, ao_textures, "ao", resized_textures),
+                resize_texture(file, settings.metallic_factor, metallic_textures, "metallic", resized_textures),
+                resize_texture(file, settings.roughness_factor, roughness_textures, "roughness", resized_textures),
+                resize_texture(file, settings.normal_factor, normal_textures, "normal", resized_textures),
+                resize_texture(file, settings.opacity_factor, opacity_textures, "opacity", resized_textures),
+                resize_texture(file, settings.displacement_factor, displacement_textures, "displacement", resized_textures),
+                resize_texture(file, settings.custom1_factor, custom1_textures, "custom1", resized_textures),
+                resize_texture(file, settings.custom2_factor, custom2_textures, "custom2", resized_textures)
+            ]
+            if True in results:
+                remap_texture(file)
+
+        print(bcolors.OKGREEN + "Texture optimization complete."+ bcolors.ENDC)
         return {'FINISHED'}
+    
+# endregion textures
 
 class SFR_OT_Mesh_Optimization_Frame(Operator):
     bl_idname = "superfastrender.mesh_optimization_frame"
@@ -586,7 +643,9 @@ classes = (
     SFR_OT_Preset_Default,
     SFR_OT_Preset_High,
     SFR_OT_Preset_Ultra,
+
     SFR_OT_Texture_Optimization,
+
     SFR_OT_Mesh_Optimization_Frame,
     SFR_OT_Mesh_Optimization_Animation,
     SFR_OT_Mesh_Optimization_Remove,
