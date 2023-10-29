@@ -39,6 +39,8 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                 boxcol.label(text="No camera found in scene.")
                 boxcol.label(text="Please add a camera to the scene.")
             else: 
+                boxcol.prop(settings, "selected_camera", text="Camera")
+
                 camera_object = bpy.data.objects[settings.selected_camera]
                 camera_data = bpy.data.cameras[camera_object.data.name]
 

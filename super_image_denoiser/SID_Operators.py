@@ -183,10 +183,9 @@ class SID_OT_SIDTRender(Operator):
     @classmethod
     def poll(cls, context: Context):
         scene = context.scene
-        settings = bpy.context.scene.sid_settings
-        denoise_render_stat = bpy.context.scene.denoise_render_stat
+        sid_denoiserender_status = scene.sid_denoiserender_status
 
-        return not denoise_render_stat.is_rendering
+        return not sid_denoiserender_status.is_rendering
 
     def execute(self, context: Context):
 
@@ -202,7 +201,7 @@ class SID_OT_SIDTRender(Operator):
 
         connect_render_layers_to_sid()
         create_temporal_output_node()
-        denoise_render_stat = bpy.context.scene.denoise_render_stat
+        sid_denoiserender_status = bpy.context.scene.sid_denoiserender_status
 
         # Reset state
         self.stop = False
@@ -213,10 +212,10 @@ class SID_OT_SIDTRender(Operator):
         self.jobs = create_render_job(context.scene)
         self.current_job = None
 
-        denoise_render_stat.is_rendering = True
-        denoise_render_stat.should_stop = False
-        denoise_render_stat.jobs_done = 0
-        denoise_render_stat.jobs_remaining = denoise_render_stat.jobs_total = len(self.jobs)
+        sid_denoiserender_status.is_rendering = True
+        sid_denoiserender_status.should_stop = False
+        sid_denoiserender_status.jobs_done = 0
+        sid_denoiserender_status.jobs_remaining = sid_denoiserender_status.jobs_total = len(self.jobs)
 
         # Attach render callbacks
         bpy.app.handlers.render_pre.append(self.render_pre)
@@ -233,13 +232,13 @@ class SID_OT_SIDTRender(Operator):
     def modal(self, context: Context, event: Event):
         scene = context.scene
 
-        denoise_render_stat = bpy.context.scene.denoise_render_stat
+        sid_denoiserender_status = bpy.context.scene.sid_denoiserender_status
 
         if event.type == 'ESC':
             self.stop = True
 
         elif event.type == 'TIMER':
-            was_cancelled = self.stop or denoise_render_stat.should_stop
+            was_cancelled = self.stop or sid_denoiserender_status.should_stop
 
             if was_cancelled or not self.jobs:
 
@@ -250,8 +249,8 @@ class SID_OT_SIDTRender(Operator):
                 bpy.app.handlers.render_complete.remove(self.render_complete)
                 context.window_manager.event_timer_remove(self.timer)
 
-                denoise_render_stat.should_stop = False
-                denoise_render_stat.is_rendering = False
+                sid_denoiserender_status.should_stop = False
+                sid_denoiserender_status.is_rendering = False
 
                 if was_cancelled:
                     return {'CANCELLED'}
@@ -261,8 +260,8 @@ class SID_OT_SIDTRender(Operator):
 
                 self.start_job(context)
 
-                denoise_render_stat.jobs_done += 1
-                denoise_render_stat.jobs_remaining -= 1
+                sid_denoiserender_status.jobs_done += 1
+                sid_denoiserender_status.jobs_remaining -= 1
 
         # Allow stop button to cancel rendering rather than this modal
         return {'PASS_THROUGH'}

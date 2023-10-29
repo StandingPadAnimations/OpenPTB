@@ -48,11 +48,11 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag Version:")
-        row.label(text="0.0.1")
+        row.label(text="0.4.0")
 
         row = box.row()
         row.label(text="Super Fast Render Version:")
-        row.label(text="3.1.0")
+        row.label(text="3.3.0")
 
         row = box.row()
         row.label(text="Super Advanced Camera Version:")

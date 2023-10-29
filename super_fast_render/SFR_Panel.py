@@ -1,5 +1,5 @@
 import bpy
-
+from .SRF_Functions import dependencies
 from bpy.types import (
     Context,
     Panel,
@@ -30,8 +30,18 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
             boxrow = boxmain.row()
             boxrow.scale_y = 1.5
             boxrow.prop(settings, "optimization_method", text="Optimization Method", expand=True)
-            boxcol_rso = boxmain.box()
             if settings.optimization_method == "AUTO":
+
+                if not dependencies.checked:
+                    dependencies.check_dependencies()
+                
+                if dependencies.needs_install:
+                    boxcol_rso = boxmain.box()
+                    boxcol_rso.label(text="Dependencies not found. Please install them.", icon="ERROR")
+                    boxcol_rso.operator("superfastrender.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
+
+                boxcol_rso = boxmain.box()
+                boxcol_rso.enabled = not dependencies.needs_install
                 template_boxtitle(settings, boxcol_rso, "rso_auto_settings", "General Settings", "SETTINGS")
                 if settings.show_rso_auto_settings:
                     col = boxcol_rso.column()
@@ -40,39 +50,47 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
                     col.prop(settings, "benchmark_resolution", text="Benchmark Resolution", slider=True)
                     col.prop(settings, "benchmark_threshold", text="Threshold", slider=True)
                     col = boxcol_rso.column()
-                    col.prop(settings, "benchmark_frame_offset", text="Frame Offset")
+                    col.prop(settings, "benchmark_scene_type", text="Scene Type")
+                    if settings.benchmark_scene_type == "CUSTOM":
+                        col = boxcol_rso.column()
+                        col.prop(settings, "benchmark_scene_bounce_order")
+                        col.label(text = "Starting Settings:")
+                        row = col.row()
+                        row.prop(bpy.context.scene.cycles, "diffuse_bounces", text="Diffuse Bounces")
+                        row.prop(bpy.context.scene.cycles, "glossy_bounces", text="Glossy Bounces")
+                        row.prop(bpy.context.scene.cycles, "transmission_bounces", text="Transmission Bounces")
+                        row = col.row()
+                        row.prop(bpy.context.scene.cycles, "volume_bounces", text="Volume Bounces")
+                        row.prop(bpy.context.scene.cycles, "transparent_max_bounces", text="Transparent Bounces")
+                        rowmax = row.row()
+                        rowmax.enabled = False
+                        rowmax.prop(bpy.context.scene.cycles, "max_bounces", text="Total Bounces")
+                        row = col.row()
+                        row.prop(bpy.context.scene.cycles, "caustics_reflective", text="Reflective Caustics", toggle=True)
+                        row.prop(bpy.context.scene.cycles, "caustics_refractive", text="Refractive Caustics", toggle=True)
+                        col.separator()
+                        col.label(text = "Info:", icon = "INFO")
+                        col.label(text = "Bounce Order Legend:")
+                        row = col.row()
+                        row.label(text = "0 = Diffuse")
+                        row.label(text = "1 = Glossy")
+                        row.label(text = "2 = Transmission")
+                        row = col.row()
+                        row.label(text = "3 = Volume")
+                        row.label(text = "4 = Transparent")
+                        row.label(text = "5 = Reflective Caustics")
+                        row = col.row()
+                        row.label(text = "6 = Refractive Caustics")
 
                 boxcol_rso = boxmain.box()
-                template_boxtitle(settings, boxcol_rso, "rso_auto_passes", "Passes", "NODE_COMPOSITING")
-                if settings.show_rso_auto_passes:
-                    col = boxcol_rso.column(align=True)
-                    row = col.row(align=True)
-                    row.prop(settings, "benchmark_diffuse", text="Diffuse", toggle=True)
-                    row.prop(settings, "benchmark_glossy", text="Glossy", toggle=True)
-                    row = col.row(align=True)
-                    row.prop(settings, "benchmark_transmission", text="Transmission", toggle=True)
-                    row.prop(settings, "benchmark_volume", text="Volume", toggle=True)
-                    col.prop(settings, "benchmark_transparent", text="Transparency", toggle=True)
-
-                boxcol_rso = boxmain.box()
-                template_boxtitle(settings, boxcol_rso, "rso_auto_light", "Light Behavior", "OUTLINER_OB_LIGHT")
-                if settings.show_rso_auto_light:
-                    col = boxcol_rso.column(align=True)
-                    col.prop(settings, "benchmark_brightness_direct", text="Direct Brightness", toggle=True)
-                    col.prop(settings, "benchmark_brightness_indirect", text="Indirect Brightness", toggle=True)
-                    col = boxcol_rso.column(align=True)
-                    row = col.row(align=True)
-                    row.prop(settings, "benchmark_caustics_reflective", text="Reflective Caustics", toggle=True)
-                    row.prop(settings, "benchmark_caustics_refractive", text="Refractive Caustics", toggle=True)
-                    col.prop(settings, "benchmark_caustics_blur", text="Caustic Blur", toggle=True)
-
-                boxmain.separator()
-                boxrow = boxmain.row()
+                boxcol_rso.enabled = not dependencies.needs_install
+                boxrow = boxcol_rso.row(align=True)
                 boxrow.scale_y = 1.5
                 boxrow.operator("superfastrender.benchmark_frame", text="Benchmark Frame", icon="RENDER_STILL")
-                boxrow.operator("superfastrender.benchmark_animation", text="Benchmark Animation", icon="RENDER_ANIMATION")
+                boxrow.operator("superfastrender.openfolderbenchmark", text="", icon="FILE_FOLDER")
 
             if settings.optimization_method == "MANUAL":
+                boxcol_rso = boxmain.box()
                 col = boxcol_rso.column()
                 col.operator("superfastrender.preset_preview", text="Preview Preset", icon="IPO_SINE")
                 col.operator("superfastrender.preset_fast", text="Fast Preset", icon="IPO_QUAD")
@@ -100,7 +118,9 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
                 row_settings_adaptive.prop(cycles, "preview_adaptive_threshold", text="Noise Threshold")
                 row_settings_adaptive.prop(cycles, "preview_adaptive_min_samples", text="Min Samples")
                 col_settings.prop(cycles, "preview_samples", text="Max Samples")
-                col_settings.prop(render, "preview_pixel_size", text="Pixel Size")
+                row_settings = col_settings.row(align=True)
+                row_settings.label(text="Pixel Size")
+                row_settings.prop(render, "preview_pixel_size", expand=True)
 
                 box_settings = boxmain.box()
                 col_settings = box_settings.column()

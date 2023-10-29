@@ -1,27 +1,230 @@
 import bpy
+import os
+import cv2
+import numpy as np
+import time
 from bpy.types import (
     Context,
-    Operator
+    Operator,
 )
+from .SRF_Functions import *
+from typing import List, NamedTuple
 
+#region dependencies
+
+class SFR_OT_CheckDependencies(Operator):
+    bl_idname = "superfastrender.check_dependencies"
+    bl_label = "Check Dependencies"
+    bl_description = "Checks for the Python dependencies required by the addon"
+
+    @classmethod
+    def poll(cls, context):
+        return not dependencies.checked or dependencies.needs_install
+
+    def execute(self, context):
+        dependencies.check_dependencies()
+
+        return {'FINISHED'}
+
+
+class SFR_OT_InstallDependencies(Operator):
+    bl_idname = "superfastrender.install_dependencies"
+    bl_label = "Install Dependencies"
+    bl_description = "Install the Python dependencies required by the addon"
+
+    @classmethod
+    def poll(cls, context):
+        if not dependencies.checked:
+            dependencies.check_dependencies()
+
+        return dependencies.needs_install
+
+    def execute(self, context):
+        try:
+            dependencies.install_dependencies()
+        except ValueError as ve:
+            self.report({"ERROR"}, f"Error installing package {ve.args[0]}.\n\nCheck the System Console for details.")
+
+        if dependencies.error:
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+#endregion dependencies
+
+#region bechmark_frame
 
 class SFR_OT_Benchmark_Frame(Operator):
     bl_idname = "superfastrender.benchmark_frame"
     bl_label = "Frame Benchmark"
     bl_description = ""
+    
+    # Dictionary to manage bounce data
+    bounce_data = {
+        "diffuse_bounces": {"bounces": [], "times": [], "brightness": []},
+        "glossy_bounces": {"bounces": [], "times": [], "brightness": []},
+        "transmission_bounces": {"bounces": [], "times": [], "brightness": []},
+        "volume_bounces": {"bounces": [], "times": [], "brightness": []},
+        "transparent_max_bounces": {"bounces": [], "times": [], "brightness": []},
+        "caustics_reflective": {"bounces": [], "times": [], "brightness": []},
+        "caustics_refractive": {"bounces": [], "times": [], "brightness": []}
+    }
+    
+    # Helper method to setup render settings
+    def setup_render_settings(self, context):
+        settings = context.scene.sfr_settings
+        cycles = context.scene.cycles
+        
+        # Backup old settings
+        old_settings = {
+            "render_resolution": context.scene.render.resolution_percentage,
+            "denoiser": cycles.use_denoising,
+            "samples": cycles.samples,
+            "adaptive_sampling": cycles.use_adaptive_sampling,
+            "output_format": context.scene.render.image_settings.file_format
+        }
+
+        # Apply new settings
+        context.scene.render.resolution_percentage = settings.benchmark_resolution
+        cycles.use_denoising = False
+        cycles.samples = 10000
+        cycles.use_adaptive_sampling = False
+        cycles.use_animated_seed = False
+        cycles.use_adaptive_sampling = False
+        cycles.sample_clamp_direct = 0
+        cycles.sample_clamp_indirect = 0
+        cycles.use_light_tree = True
+        cycles.blur_glossy = 1
+        cycles.caustics_reflective = True
+        cycles.caustics_refractive = True
+        cycles.debug_use_spatial_splits = True
+        cycles.debug_use_hair_bvh = True
+        cycles.debug_use_compact_bvh = False
+        context.scene.render.use_persistent_data = True
+        context.scene.render.image_settings.file_format = 'PNG'
+        context.scene.render.image_settings.color_mode = 'RGBA'
+        context.scene.render.image_settings.color_depth = '16'
+        context.scene.render.image_settings.compression = 0
+        
+        return old_settings
+    
+    # Helper method to restore render settings
+    def restore_render_settings(self, context, old_settings):
+        cycles = context.scene.cycles
+        context.scene.render.resolution_percentage = old_settings["render_resolution"]
+        cycles.use_denoising = old_settings["denoiser"]
+        cycles.samples = old_settings["samples"]
+        cycles.use_adaptive_sampling = old_settings["adaptive_sampling"]
+        context.scene.render.image_settings.file_format = old_settings["output_format"]
+        cycles.sample_clamp_indirect = 10
+    
+    # Render callbacks
+    def execute(self, context: Context):
+        print(bcolors.OKGREEN, "Starting benchmarking...", bcolors.ENDC)
+        settings = bpy.context.scene.sfr_settings
+        cycles = context.scene.cycles
+
+        # Clear data from previous benchmark
+        for bounce_name in self.bounce_data:
+            self.bounce_data[bounce_name]["bounces"].clear()
+            self.bounce_data[bounce_name]["times"].clear()
+            self.bounce_data[bounce_name]["brightness"].clear()
+
+        # Setup render settings
+        old_settings = self.setup_render_settings(context)
+
+        # Determine benchmark scene type
+        if settings.benchmark_scene_type == "INTERIOR":
+            bounces = [4, 4, 4, 0, 2, 0, 0]
+        elif settings.benchmark_scene_type == "EXTERIOR":
+            bounces = [0, 0, 0, 0, 0, 0, 0]
+        elif settings.benchmark_scene_type == "CUSTOM":
+            bounces = [cycles.diffuse_bounces, cycles.glossy_bounces, cycles.transmission_bounces, cycles.volume_bounces, cycles.transparent_max_bounces, 1 if cycles.caustics_reflective else 0, 1 if cycles.caustics_refractive else 0]
+        else:
+            bounces = [0, 0, 0, 0, 0, 0, 0]
+
+        bounce_order = [int(b) for b in settings.benchmark_scene_bounce_order.split(",")]
+        threshold = settings.benchmark_threshold * 10
+
+        for bounce_type in bounce_order:
+            print(bcolors.OKCYAN, f"Benchmarking {['diffuse', 'glossy', 'transmission', 'volume', 'transparent', 'reflective', 'refractive'][bounce_type]} bounces...", bcolors.ENDC)
+            previous_image_path = None
+
+            while True:
+                # Render current settings
+                set_bounces(bounces)
+                current_image_path = bpy.path.abspath(f"{settings.benchmark_path}/Benchmark/image_{bounce_type}_{sum(bounces)}.png")
+                render_time = render_image(current_image_path)
+                render_time = round(render_time, 2)
+                bounces[bounce_type] += 1
+
+                # Wait for the file to be fully written
+                time.sleep(0.01)
+
+                # Compare with previous image if it exists
+                if previous_image_path:
+                    image_a = cv2.imread(previous_image_path, cv2.IMREAD_UNCHANGED)
+                    image_b = cv2.imread(current_image_path, cv2.IMREAD_UNCHANGED)
+
+                    if image_a is None or image_b is None:
+                        raise Exception(f"Failed to load images: {previous_image_path}, {current_image_path}")
+
+                    brightness_difference = calculate_brightness_difference(image_a, image_b)
+
+                    # Store data for plotting
+
+                    # Correctly map numeric keys to string names
+                    bounce_name = [
+                        "diffuse_bounces", "glossy_bounces", "transmission_bounces", 
+                        "volume_bounces", "transparent_max_bounces", 
+                        "caustics_reflective", "caustics_refractive"
+                    ][bounce_type]
+
+                    self.bounce_data[bounce_name]["bounces"].append(bounces[bounce_type] - 2)
+                    self.bounce_data[bounce_name]["times"].append(render_time)
+                    self.bounce_data[bounce_name]["brightness"].append(brightness_difference)
+
+                    # Check if the difference is below the threshold
+                    if brightness_difference <= threshold:
+                        print(bcolors.OKBLUE, f"No significant improvement in {bounce_name}. Reverting.", bcolors.ENDC)
+                        bounces[bounce_type] -= 2
+                        break
+
+                    plot_data(self.bounce_data[bounce_name]["times"], self.bounce_data[bounce_name]["brightness"], self.bounce_data[bounce_name]["bounces"], bounce_name)
+
+                previous_image_path = current_image_path
+
+        # Restore settings after benchmarking
+        self.restore_render_settings(context, old_settings)
+
+        # Remove files then folder
+        if os.path.exists(os.path.join(bpy.path.abspath(settings.benchmark_path), "Benchmark")):
+            for file in os.listdir(os.path.join(bpy.path.abspath(settings.benchmark_path), "Benchmark")):
+                os.remove(os.path.join(bpy.path.abspath(settings.benchmark_path), "Benchmark", file))
+            os.rmdir(os.path.join(bpy.path.abspath(settings.benchmark_path), "Benchmark"))
+            
+        print(bcolors.OKGREEN, "Benchmarking complete.", bcolors.ENDC)
+        self.report({'INFO'}, "Benchmarking complete.")
+
+        return {'FINISHED'}
+    
+class SFR_OT_OpenFolderBenchmarked(Operator):
+    bl_idname = "superfastrender.openfolderbenchmark"
+    bl_label = "Open Folder"
+    bl_description = "Open Folder with Benchmarked Images"
 
     def execute(self, context: Context):
-        print("Benchmarking frame")
+        settings = bpy.context.scene.sfr_settings
+
+        # check if the folder exists
+        if not os.path.exists(os.path.join(bpy.path.abspath(settings.benchmark_path), "benchmark")):
+            self.report({'ERROR'}, "Folder does not exist, please benchmark first.")
+            return {'CANCELLED'}
+
+        os.startfile(os.path.join(bpy.path.abspath(settings.benchmark_path), "benchmark"))
         return {'FINISHED'}
 
-class SFR_OT_Benchmark_Animation(Operator):
-    bl_idname = "superfastrender.benchmark_animation"
-    bl_label = "Animation Benchmark"
-    bl_description = ""
 
-    def execute(self, context: Context):
-        print("Benchmarking animation")
-        return {'FINISHED'}
+#endregion bechmark_frame
 
 class SFR_OT_Preset_Preview(Operator):
     bl_idname = "superfastrender.preset_preview"
@@ -361,8 +564,12 @@ class SFR_OT_Mesh_Optimization_Remove(Operator):
         return {'FINISHED'}
 
 classes = (
+    SFR_OT_CheckDependencies,
+    SFR_OT_InstallDependencies,
+
     SFR_OT_Benchmark_Frame,
-    SFR_OT_Benchmark_Animation,
+    SFR_OT_OpenFolderBenchmarked,
+
     SFR_OT_Preset_Preview,
     SFR_OT_Preset_Fast,
     SFR_OT_Preset_Default,

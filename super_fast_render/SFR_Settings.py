@@ -12,7 +12,6 @@ from bpy.props import (
     FloatProperty,
 )
 
-
 class SFR_Settings(PropertyGroup):
 
     # Show Panels
@@ -77,83 +76,34 @@ class SFR_Settings(PropertyGroup):
 
     benchmark_threshold: FloatProperty(
         default=0.1,
-        min=0.0,
+        min=0.01,
         max=1.0,
         name="Threshold",
         description="Threshold",
         subtype="FACTOR",
     )
 
-    benchmark_frame_offset: IntProperty(
-        default=50,
-        min=1,
-        soft_max=100,
-        name="Frame Offset",
-        description="Frame Offset",
+    benchmark_scene_type: EnumProperty(
+        items=[
+            ("INTERIOR", "Interior Scene", "Interior Scenes need a few more bounces, take that into consieration when benchmarking"),
+            ("EXTERIOR", "Exterior Scene", "Exterior Scene need fewer bounces, take that into consieration when benchmarking"),
+            ("CUSTOM", "Custom", "Custom")
+        ],
+        default="INTERIOR",
+        name="Scene Type",
+        description="Scene Type",
     )
 
-    # Passes
-
-    benchmark_diffuse: BoolProperty(
-        default=True,
-        name="Diffuse",
-        description="Diffuse",
+    benchmark_scene_starting_bounces: StringProperty(
+        default="0,0,0,0,0,0,0,0",
+        name="Starting Bounces",
+        description="Starting Bounces",
     )
 
-    benchmark_glossy: BoolProperty(
-        default=True,
-        name="Glossy",
-        description="Glossy",
-    )
-
-    benchmark_transmission: BoolProperty(
-        default=True,
-        name="Transmission",
-        description="Transmission",
-    )
-
-    benchmark_volume: BoolProperty(
-        default=True,
-        name="Volume",
-        description="Volume",
-    )
-
-    benchmark_transparent: BoolProperty(
-        default=True,
-        name="Transparent",
-        description="Transparent",
-    )
-
-    # Light Behavior
-
-    benchmark_brightness_indirect: BoolProperty(
-        default=True,
-        name="Indirect",
-        description="Indirect",
-    )
-
-    benchmark_brightness_direct: BoolProperty(
-        default=False,
-        name="Direct",
-        description="Direct",
-    )
-
-    benchmark_caustics_reflective: BoolProperty(
-        default=True,
-        name="Reflective",
-        description="Reflective",
-    )
-
-    benchmark_caustics_refractive: BoolProperty(
-        default=True,
-        name="Refractive",
-        description="Refractive",
-    )
-
-    benchmark_caustics_blur: BoolProperty(
-        default=False,
-        name="Blur",
-        description="Blur",
+    benchmark_scene_bounce_order: StringProperty(
+        default="4,0,1,2,4,3,5,6",
+        name="Bounce Order",
+        description="Bounce Order",
     )
 
     # Texture Optimization
@@ -311,15 +261,21 @@ classes = (
 
 
 def register_function():
-    bpy.utils.register_class(SFR_Settings)
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
     bpy.types.Scene.sfr_settings = bpy.props.PointerProperty(type=SFR_Settings)
 
 
 def unregister_function():
-    try:
-        bpy.utils.unregister_class(SFR_Settings)
-    except (RuntimeError, Exception) as e:
-        print(f"Failed to unregister SFR_Settings: {e}")
+    for cls in reversed(classes):
+        if hasattr(bpy.types, cls.__name__):
+            try:
+                bpy.utils.unregister_class(cls)
+            except (RuntimeError, Exception) as e:
+                print(f"Failed to unregister {cls}: {e}")
 
-    del bpy.types.Scene.sfr_settings
+    try:
+        del bpy.types.Scene.sfr_settings
+    except:
+        pass

@@ -438,7 +438,7 @@ def register_function():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.denoise_render_stat = bpy.props.PointerProperty(type=DenoiseRenderStatus)
+    bpy.types.Scene.sid_denoiserender_status = bpy.props.PointerProperty(type=DenoiseRenderStatus)
     bpy.types.Scene.sid_settings = bpy.props.PointerProperty(type=SID_Settings)
 
 
@@ -456,6 +456,6 @@ def unregister_function():
         pass
 
     try:
-        del bpy.types.Scene.denoise_render_stat
+        del bpy.types.Scene.sid_denoiserender_status
     except:
         pass
