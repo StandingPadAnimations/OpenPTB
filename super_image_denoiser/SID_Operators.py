@@ -160,24 +160,24 @@ class SID_OT_SIDTRender(Operator):
     def render_pre(self, scene: Scene, dummy):
         self.rendering = True
         render_pre_info = f"Rendering... Frame: {str(scene.frame_current).zfill(len(str(scene.frame_end)))} of {scene.frame_end}"
-        print(bcolors.OKCYAN, render_pre_info, bcolors.ENDC)
+        print(bcolors.OKCYAN + render_pre_info+ bcolors.ENDC)
 
     def render_post(self, scene: Scene, dummy):
         self.rendering = False
         render_post_info = f"Finished.... Frame: {str(scene.frame_current).zfill(len(str(scene.frame_end)))} of {scene.frame_end}"
-        print(bcolors.OKGREEN, render_post_info, bcolors.ENDC)
+        print(bcolors.OKGREEN + render_post_info+ bcolors.ENDC)
 
     def render_complete(self, scene: Scene, dummy):
         self.jobs.pop(0)
         self.done = True
         render_complete_info = f"Finished rendering animation from frame {scene.frame_start} to {scene.frame_end}, {scene.frame_end - scene.frame_start + 1} frames in total."
-        print(bcolors.SUCCESS, render_complete_info, bcolors.ENDC, "\n")
+        print(bcolors.SUCCESS + render_complete_info+ bcolors.ENDC, "\n")
         restore_render_settings(scene, self.saved_render_settings)
 
     def render_cancel(self, scene: Scene, dummy):
         self.stop = True
         render_cancel_info = f"Cancelled rendering animation."
-        print(bcolors.ABORT, render_cancel_info, bcolors.ENDC, "\n")
+        print(bcolors.ABORT + render_cancel_info+ bcolors.ENDC, "\n")
         restore_render_settings(scene, self.saved_render_settings)
 
     @classmethod
@@ -197,7 +197,7 @@ class SID_OT_SIDTRender(Operator):
         setup_render_settings(context)
 
         render_start_info = f"Starting to render animation from frame {context.scene.frame_start} to {context.scene.frame_end}, {context.scene.frame_end - context.scene.frame_start + 1} frames in total."
-        print(bcolors.OKBLUE, render_start_info, bcolors.ENDC, "\n")
+        print(bcolors.OKBLUE + render_start_info+ bcolors.ENDC, "\n")
 
         connect_render_layers_to_sid()
         create_temporal_output_node()
@@ -309,19 +309,19 @@ class SID_OT_SIDTDenoise(Operator):
                 if node.label.startswith("SID Image"):
                     bpy.data.images.remove(node.image, do_unlink=True)
     
-        print(bcolors.SUCCESS, "Finished denoising animation.", bcolors.ENDC, "\n")
+        print(bcolors.SUCCESS + "Finished denoising animation."+ bcolors.ENDC, "\n")
 
-        print(bcolors.OKBLUE, "Cleaning up...", bcolors.ENDC, "\n")
+        print(bcolors.OKBLUE + "Cleaning up..."+ bcolors.ENDC, "\n")
 
         bpy.data.node_groups.remove(bpy.data.node_groups.get(".SID Temporal Align"))
         bpy.data.node_groups.remove(bpy.data.node_groups.get(".SID Temporal MedianMax"))
         bpy.data.node_groups.remove(bpy.data.node_groups.get(".SID Temporal MedianMin"))
         bpy.data.node_groups.remove(bpy.data.node_groups.get(".SID Temporal Crop"))
 
-        print(bcolors.WARNING, "This error can be ignored.", bcolors.ENDC)
+        print(bcolors.WARNING + "This error can be ignored."+ bcolors.ENDC)
         bpy.data.scenes.remove(temporal_denoise_scene, do_unlink=True)
 
-        print(bcolors.SUCCESS,"Done!", bcolors.ENDC, "\n")
+        print(bcolors.SUCCESS +"Done!"+ bcolors.ENDC, "\n")
             
         return {'FINISHED'}
     
@@ -372,14 +372,14 @@ class SID_OT_SIDTCombine(Operator):
                 if node.label.startswith("SID Image"):
                     bpy.data.images.remove(node.image, do_unlink=True)
                     
-        print(bcolors.SUCCESS, "Finished combining frames to animation.", bcolors.ENDC, "\n")
+        print(bcolors.SUCCESS + "Finished combining frames to animation."+ bcolors.ENDC, "\n")
 
-        print(bcolors.OKBLUE, "Cleaning up...", bcolors.ENDC, "\n")
+        print(bcolors.OKBLUE + "Cleaning up..."+ bcolors.ENDC, "\n")
 
-        print(bcolors.WARNING, "This error can be ignored.", bcolors.ENDC)
+        print(bcolors.WARNING + "This error can be ignored."+ bcolors.ENDC)
         bpy.data.scenes.remove(combine_scene, do_unlink=True)
 
-        print(bcolors.SUCCESS,"Done!", bcolors.ENDC, "\n")
+        print(bcolors.SUCCESS +"Done!"+ bcolors.ENDC, "\n")
         return {'FINISHED'}
     
 class SID_OT_SIDTOpenFolderCombined(Operator):

@@ -1247,11 +1247,11 @@ def create_temporal_setup(scene, view_layer_id: int):
             frames += 1
     
     if frames < 4:
-        print(bcolors.WARNING, "Not enough frames to denoise, needs at least 4, skipping...", bcolors.ENDC)
+        print(bcolors.WARNING + "Not enough frames to denoise, needs at least 4, skipping..."+ bcolors.ENDC)
         return
 
     pre_denoise_info = f"Starting to denoise animation // Layers: {view_layer_id} // Frames: {frames}"
-    print(bcolors.OKBLUE, pre_denoise_info, bcolors.ENDC, "\n")
+    print(bcolors.OKBLUE + pre_denoise_info+ bcolors.ENDC, "\n")
 
     compositor = scene.node_tree
     path_processing = os.path.join(bpy.path.abspath(settings.working_directory), "processing", str(view_layer_id))
@@ -1433,7 +1433,7 @@ def create_temporal_setup(scene, view_layer_id: int):
             try:
                 os.rename(os.path.join(path_completed, file), os.path.join(path_completed, file.split(".")[0][0:6] + "." + file.split(".")[1]))
             except Exception as e:
-                print(bcolors.WARNING, "Error while renaming file:", e, bcolors.ENDC)
+                print(bcolors.WARNING + "Error while renaming file:", e+ bcolors.ENDC)
 
     return
 
@@ -1456,7 +1456,7 @@ def create_combine_setup(scene, view_layer_id: int):
             frames += 1
 
     pre_combine_info = f"Starting to combine frames into animation // Layers: {view_layer_id} // Frames: {frames}"
-    print(bcolors.OKBLUE, pre_combine_info, bcolors.ENDC, "\n")
+    print(bcolors.OKBLUE + pre_combine_info+ bcolors.ENDC, "\n")
 
     compositor = scene.node_tree
     path_completed = os.path.join(bpy.path.abspath(settings.working_directory), "completed", str(view_layer_id))
