@@ -4,7 +4,7 @@
 # Run artefacts
 __pycache__
 *_updater/
-
+test_output.png
 
 # Release files
 PidgeonToolBag.zip
