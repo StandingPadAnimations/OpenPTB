@@ -73,9 +73,6 @@ def template_sidt_render(col, settings):
         boxcol = box.column()
         boxcol.prop(settings, "smaller_exr_files", icon="FULLSCREEN_EXIT")
         boxcol.prop(bpy.context.scene.render, "use_overwrite", text="Overwrite existing files", toggle=True, icon="CURRENT_FILE")
-        boxcolpv = boxcol.column()
-        boxcolpv.enabled = False
-        boxcolpv.prop(settings, "preview_render", icon="RESTRICT_RENDER_OFF" if settings.preview_render else "RESTRICT_RENDER_ON")
         boxrow = box.row(align=True)
         boxrow.scale_y = 1.5
         boxrow.operator("superimagedenoiser.sidtrender", icon="RENDER_ANIMATION")
