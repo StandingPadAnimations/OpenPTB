@@ -1,5 +1,5 @@
 import bpy
-from .SRF_Functions import dependencies
+from .SFR_Functions import dependencies
 from bpy.types import (
     Context,
     Panel,

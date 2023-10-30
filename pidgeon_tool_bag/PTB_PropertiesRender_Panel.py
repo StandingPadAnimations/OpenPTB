@@ -62,6 +62,10 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         row.label(text="Super Image Denoiser Version:")
         row.label(text="4.5.0")
 
+        row = box.row()
+        row.label(text="Super Render Farm Version:")
+        row.label(text="0.1.0")
+
         col.separator(factor=0.5)
 
         box = col.box()

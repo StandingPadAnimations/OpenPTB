@@ -1,0 +1,1 @@
+{"master_working_directory": "//SRF/", "master_logging": False, "master_port": 19186, "master_analytics": False, "master_data": False, "master_ipoverride": "", "master_prf_override": "", "master_client_limit": 0, "master_ftp_url": "", "master_ftp_user": "", "master_ftp_pass": "", "master_smb_url": "", "master_smb_user": "", "master_smb_pass": "", "master_db_override": ""}
