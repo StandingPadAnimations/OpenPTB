@@ -15,18 +15,6 @@ from collections import namedtuple
 from ..pidgeon_tool_bag.PTB_Functions import bcolors
 from pathlib import Path
 
-@contextlib.contextmanager
-def suppress_stdout():
-    """ A context manager to suppress standard output. """
-    original_stdout = sys.stdout  # Save a reference to the original standard output
-
-    with open(os.devnull, 'w') as devnull:
-        sys.stdout = devnull  # Redirect stdout to the null device
-        try:
-            yield
-        finally:
-            sys.stdout = original_stdout  # Restore stdout to the original standard output
-
 #endregion import
 
 #region dependencies
@@ -154,15 +142,6 @@ def set_bounces(bounces):
     if bounces[6] == 0: cycles.caustics_refractive = False
     else: cycles.caustics_refractive = True
 
-def render_image(file_path):
-    """ Render the current scene to the specified file path and return the render time. """
-    start_time = time.time()
-    bpy.context.scene.render.filepath = file_path
-    with suppress_stdout():
-        bpy.ops.render.render(write_still=True)
-    render_time = time.time() - start_time
-    return render_time
-
 def calculate_brightness_difference(image_a, image_b):
     """ Calculate the average brightness difference between two images. """
     diff = image_b.astype(float) - image_a.astype(float)
@@ -170,7 +149,7 @@ def calculate_brightness_difference(image_a, image_b):
     avg_diff = round(avg_diff, 2)
     return avg_diff
 
-def plot_data(render_times, brightness_differences, bounces, bounce_type):
+def plot_data_rso(render_times, brightness_differences, bounces, bounce_type):
     """ Plot the render time against brightness difference for each bounce. """
     settings = bpy.context.scene.sfr_settings
     fig, ax1 = plt.subplots()
@@ -277,3 +256,26 @@ def remap_texture(file):
             img.reload()
 
 #endregion TextureOptimization
+
+#region RenderEstimator
+
+
+def plot_data_estimator(render_times, frames):
+    """ Plot the frames against render time. """
+    settings = bpy.context.scene.sfr_settings
+    fig, ax1 = plt.subplots()
+
+    # Plotting render time
+    color = 'tab:red'
+    ax1.set_xlabel('Frames')
+    ax1.set_ylabel('Render Time (seconds)', color=color)
+    ax1.plot(frames, render_times, 'o-', color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    ax1.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+
+    plt.title(f'Render Time vs Frame')
+    fig.tight_layout() 
+    plt.savefig(bpy.path.abspath(f'{settings.benchmark_path}/RenderTimes.png'))
+    plt.close()
+
+#endregion RenderEstimator

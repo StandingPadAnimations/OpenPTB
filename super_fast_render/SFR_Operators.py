@@ -10,6 +10,7 @@ from bpy.types import (
 from .SRF_Functions import *
 from typing import List, NamedTuple
 from distutils.dir_util import copy_tree
+from ..pidgeon_tool_bag.PTB_Functions import render_image, format_time, get_subframes
 
 #region dependencies
 
@@ -201,7 +202,7 @@ class SFR_OT_Benchmark_Frame(Operator):
                         if settings.benchmark_add_keyframes: context.scene.keyframe_insert(data_path=f"cycles.{bounce_type_name}")
                         break
                     
-                    plot_data(self.bounce_data[bounce_name]["times"], self.bounce_data[bounce_name]["brightness"], self.bounce_data[bounce_name]["bounces"], bounce_name)
+                    plot_data_rso(self.bounce_data[bounce_name]["times"], self.bounce_data[bounce_name]["brightness"], self.bounce_data[bounce_name]["bounces"], bounce_name)
             
                 previous_image_path = current_image_path
 
@@ -604,6 +605,7 @@ class SFR_OT_Texture_Optimization(Operator):
     
 # endregion textures
 
+#region meshoptimization
 class SFR_OT_Mesh_Optimization_Frame(Operator):
     bl_idname = "superfastrender.mesh_optimization_frame"
     bl_label = "Frame Optimization"
@@ -630,6 +632,63 @@ class SFR_OT_Mesh_Optimization_Remove(Operator):
     def execute(self, context: Context):
         print("Removing optimization")
         return {'FINISHED'}
+#endregion meshoptimization
+
+#region estimator
+class SFR_OT_Estimator_Time(Operator):
+    bl_idname = "superfastrender.estimator_time"
+    bl_label = "Estimate Render Time"
+    bl_description = ""
+
+
+    def execute(self, context: Context):
+        print(bcolors.OKCYAN + "Starting Estimation..." + bcolors.ENDC)
+        settings = bpy.context.scene.sfr_settings
+        
+        # Setup render settings
+        old_resolution = context.scene.render.resolution_percentage
+        old_current_frame = context.scene.frame_current
+        context.scene.render.resolution_percentage = int((context.scene.render.resolution_percentage / (settings.renderestimator_divisions+1)))
+
+        if settings.renderestimator_subframes == -1:
+            subframes = int((context.scene.frame_end - context.scene.frame_start) / 120)
+            print(subframes)
+        else:
+            subframes = settings.renderestimator_subframes
+
+        total_render_time = []
+        total_frames = []
+        for i in get_subframes(subframes):
+            print(bcolors.OKCYAN + f"Rendering frame {i} of {context.scene.frame_end}" + bcolors.ENDC)
+            render_time = render_image(bpy.path.abspath(f"{settings.benchmark_path}/estimator/{i}.png"))
+            total_render_time.append(round(render_time,2))
+            total_frames.append(i)
+
+            plot_data_estimator(total_render_time, total_frames)
+        
+        # Calculate average render time
+        average_div_render_time = (sum(total_render_time) / len(total_render_time))
+        average_frm_render_time = average_div_render_time * (4 ** settings.renderestimator_divisions)
+        total_render_time = average_frm_render_time * (context.scene.frame_end - context.scene.frame_start)
+
+        # turn average render time into a string for time formatted like 00:00:00 (hours:minutes:seconds)
+        total_render_time_string = format_time(total_render_time)
+
+        settings.renderestimator_duration = total_render_time_string
+        
+        # Restore settings after benchmarking
+        context.scene.render.resolution_percentage = old_resolution
+        context.scene.frame_current = old_current_frame
+
+        # Remove files then folder
+        if os.path.exists(os.path.join(bpy.path.abspath(settings.benchmark_path), "estimator")):
+            for file in os.listdir(os.path.join(bpy.path.abspath(settings.benchmark_path), "estimator")):
+                os.remove(os.path.join(bpy.path.abspath(settings.benchmark_path), "estimator", file))
+            os.rmdir(os.path.join(bpy.path.abspath(settings.benchmark_path), "estimator"))
+
+        print(bcolors.OKGREEN + "Estimation complete."+ bcolors.ENDC)
+        return {'FINISHED'}
+#endregion estimator
 
 classes = (
     SFR_OT_CheckDependencies,
@@ -649,6 +708,8 @@ classes = (
     SFR_OT_Mesh_Optimization_Frame,
     SFR_OT_Mesh_Optimization_Animation,
     SFR_OT_Mesh_Optimization_Remove,
+
+    SFR_OT_Estimator_Time,
 )
 
 

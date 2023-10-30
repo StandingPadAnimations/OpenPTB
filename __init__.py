@@ -3,7 +3,10 @@ from bpy.utils import previews
 
 from .super_fast_render import SFR_init
 from .super_advanced_camera import SAC_init, SAC_Functions
+from .super_real_sound import SRS_init
 from .super_image_denoiser import SID_init
+from .super_res_render import SRR_init
+from .super_render_farm import SRF_init
 
 from .pidgeon_tool_bag import (
     PTB_PropertiesRender_Panel,
@@ -59,14 +62,20 @@ def register():
     PTB_PropertiesRender_Panel.register_function()
     SFR_init.register_function()
     SAC_init.register_function()
+    SRS_init.register_function()
     SID_init.register_function()
+    SRR_init.register_function()
+    SRF_init.register_function()
 
     bpy.utils.register_class(PTB_PropertiesRender_Panel.PTB_PT_Info_Panel)
     bpy.utils.register_class(PTB_PropertiesRender_Panel.PTB_PT_Socials_Panel)
 
 def unregister():
     PTB_PropertiesRender_Panel.unregister_function()
+    SRF_init.unregister_function()
+    SRR_init.unregister_function()
     SID_init.unregister_function()
+    SRS_init.unregister_function()
     SAC_init.unregister_function()
     SFR_init.unregister_function()
 

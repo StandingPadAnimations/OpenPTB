@@ -52,6 +52,10 @@ class SFR_Settings(PropertyGroup):
         default=True,
     )
 
+    show_renderestimator: BoolProperty(
+        default=True,
+    )
+
     # Optimization Method
 
     optimization_method: EnumProperty(
@@ -356,6 +360,29 @@ class SFR_Settings(PropertyGroup):
         description="Frame Offset",
     )
 
+    # Render Estimator
+
+    renderestimator_duration: StringProperty(
+        default="00:00:00",
+        name="Duration",
+        description="Duration",
+    )
+
+    renderestimator_subframes: IntProperty(
+        default=3,
+        min=-1,
+        name="Subframes",
+        description="How many subframes to render.\n-1 = Auto",
+    )
+
+    renderestimator_divisions: IntProperty(
+        default=1,
+        min=0,
+        max=2,
+        name="Divisions",
+        description="Divisions",
+    )
+
 # Register
 
 classes = (
@@ -368,7 +395,6 @@ def register_function():
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.sfr_settings = bpy.props.PointerProperty(type=SFR_Settings)
-
 
 def unregister_function():
     for cls in reversed(classes):

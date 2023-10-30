@@ -295,6 +295,22 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
             action_row.operator("superfastrender.mesh_optimization_animation", text="Optimize Animation", icon="MESH_UVSPHERE")
             action_row.operator("superfastrender.mesh_optimization_remove", text="Remove Optimization", icon="LOOP_BACK")
 
+        boxmain = colmain.box()
+        template_boxtitle(settings, boxmain, "renderestimator", "Render Estimator", "PREVIEW_RANGE")
+        if settings.show_renderestimator:
+            maincol = boxmain.column()
+            row = maincol.row()
+            row.label(text=f"Estimated Render Time:")
+            row.label(text=f"{settings.renderestimator_duration}")
+            row = maincol.row()
+            row.prop(settings, "renderestimator_subframes")
+            row.prop(settings, "renderestimator_divisions", slider=True)
+            col = maincol.column()
+            col.prop(settings, "benchmark_path", text="Working Directory", slider=True)
+            col = maincol.column()
+            col.operator("superfastrender.estimator_time", icon="TIME")
+
+        
 
 classes = (
     SFR_PT_General_Panel,
