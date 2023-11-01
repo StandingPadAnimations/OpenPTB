@@ -1,5 +1,6 @@
 import bpy
 from bpy.utils import previews
+from bpy.app.handlers import persistent
 
 from .super_fast_render import SFR_init
 from .super_advanced_camera import SAC_init, SAC_Functions
@@ -15,7 +16,7 @@ from .pidgeon_tool_bag import (
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
     "author": "Kevin Lorengel",
-    "version": (0, 5, 0),
+    "version": (0, 6, 0),
     "blender": (4, 0, 0),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
@@ -50,6 +51,23 @@ bpy.types.Scene.new_filter_type = bpy.props.EnumProperty(
 bpy.types.Scene.new_gradient_type = bpy.props.EnumProperty(
     items=SAC_Functions.enum_previews_from_directory_gradient)
 
+#  _________________ 
+# /  ___| ___ \ ___ \
+# \ `--.| |_/ / |_/ /
+#  `--. \    /|    / 
+# /\__/ / |\ \| |\ \ 
+# \____/\_| \_\_| \_|
+                   
+
+@persistent
+def load_handler(dummy):
+    try:
+        settings = bpy.context.scene.srr_settings
+        settings.status.is_rendering = False
+        settings.status.should_stop = False
+    except:
+        pass            
+
 #  _____                                  _ 
 # |  __ \                                | |
 # | |  \/  ___  _ __    ___  _ __   __ _ | |
@@ -69,6 +87,8 @@ def register():
 
     bpy.utils.register_class(PTB_PropertiesRender_Panel.PTB_PT_Info_Panel)
     bpy.utils.register_class(PTB_PropertiesRender_Panel.PTB_PT_Socials_Panel)
+    
+    bpy.app.handlers.load_post.append(load_handler)
 
 def unregister():
     PTB_PropertiesRender_Panel.unregister_function()
@@ -88,3 +108,4 @@ def unregister():
         bpy.utils.unregister_class(PTB_PropertiesRender_Panel.PTB_PT_Info_Panel)
     except (RuntimeError, Exception) as e:
         print(f"Failed to unregister: {e}")
+        
