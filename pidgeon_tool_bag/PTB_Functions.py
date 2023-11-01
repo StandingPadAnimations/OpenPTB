@@ -4,6 +4,8 @@ import sys
 import os
 import contextlib
 
+from mathutils import Vector
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[104m'
@@ -105,3 +107,9 @@ def get_subframes(subframes):
     step_size = (end - start) / (subframes +1)
     frame_values = [round(start + i * step_size) for i in range(subframes + 2)]
     return frame_values
+
+def calculate_object_distance(selected_object_loc: Vector, active_camera_loc):
+    return(selected_object_loc - active_camera_loc).length
+   
+def clamp(value, lower, upper):
+    return lower if value < lower else upper if value > upper else value

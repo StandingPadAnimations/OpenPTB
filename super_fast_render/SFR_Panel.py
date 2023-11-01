@@ -1,5 +1,5 @@
 import bpy
-from .SRF_Functions import dependencies
+from .SFR_Functions import dependencies
 from bpy.types import (
     Context,
     Panel,
@@ -275,24 +275,48 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
         template_boxtitle(settings, boxmain, "mo", "Mesh Optimization", "MESH_ICOSPHERE")
         if settings.show_mo:
             maincol = boxmain.column()
-            row = maincol.row()
-            row.prop(settings, "decimation_render", toggle=True)
-            row.prop(settings, "decimation_viewport", toggle=True)
+            box = maincol.box()
+            row = box.row()
 
-            maincol.separator()
-            maincol.prop(settings, "decimation_max", slider=True)
-            maincol.prop(settings, "decimation_min", slider=True)
-            maincol.prop(settings, "decimation_ratio", slider=True)
-            maincol.separator()
-            maincol.prop(settings, "decimation_viewport_factor", slider=True)
-            maincol.separator()
-            maincol.prop(settings, "decimation_frame_offset", slider=True)
-            maincol.separator()
+            rowcol_button = row.column()
+            rowcolrow = rowcol_button.row(align=True)
+            rowcolrow.prop(settings, "decimation_render", toggle=True)
+            rowcolrow.scale_x = 0.5
+            rowcolrow.prop(settings, "decimation_dynamic_render", toggle=True)
+
+            rowcol_settings = rowcol_button.column()
+            rowcol_settings.enabled = settings.decimation_render
+            if settings.decimation_dynamic_render:
+                rowcol_settings.prop(settings, "decimation_max_render", slider=True)
+                rowcol_settings.prop(settings, "decimation_min_render", slider=True)
+                rowcol_settings.prop(settings, "decimation_ratio_render", slider=True)
+            else:
+                rowcol_settings.prop(settings, "decimation_render_factor", slider=True)
+
+            rowcol_button = row.column()
+            rowcolrow = rowcol_button.row(align=True)
+            rowcolrow.prop(settings, "decimation_viewport", toggle=True)
+            rowcolrow.scale_x = 0.5
+            rowcolrow.prop(settings, "decimation_dynamic_viewport", toggle=True)
+
+            rowcol_settings = rowcol_button.column()
+            rowcol_settings.enabled = settings.decimation_viewport
+            if settings.decimation_dynamic_viewport:
+                rowcol_settings.prop(settings, "decimation_max_viewport", slider=True)
+                rowcol_settings.prop(settings, "decimation_min_viewport", slider=True)
+                rowcol_settings.prop(settings, "decimation_ratio_viewport", slider=True)
+            else:
+                rowcol_settings.prop(settings, "decimation_viewport_factor", slider=True)
+
+            box = maincol.box()
+            row = box.row()
+            row.prop(settings, "decimation_selected", toggle=True)
+            row.prop(settings, "decimation_keyframe", toggle=True)
             action_col = maincol.column()
             action_col.scale_y = 1.5
+            action_col.enabled = settings.decimation_render or settings.decimation_viewport
             action_row = action_col.row()
             action_row.operator("superfastrender.mesh_optimization_frame", text="Optimize Frame", icon="MESH_ICOSPHERE")
-            action_row.operator("superfastrender.mesh_optimization_animation", text="Optimize Animation", icon="MESH_UVSPHERE")
             action_row.operator("superfastrender.mesh_optimization_remove", text="Remove Optimization", icon="LOOP_BACK")
 
         boxmain = colmain.box()
