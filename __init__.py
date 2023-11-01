@@ -15,7 +15,7 @@ from .pidgeon_tool_bag import (
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
     "author": "Kevin Lorengel",
-    "version": (0, 4, 0),
+    "version": (0, 5, 0),
     "blender": (4, 0, 0),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
