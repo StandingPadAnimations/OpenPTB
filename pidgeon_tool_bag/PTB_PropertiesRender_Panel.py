@@ -5,14 +5,6 @@ from bpy.types import (
     Panel,
 )
 
-custom_icons = bpy.utils.previews.new()
-icon_names = ["Discord", "BlenderMarket", "Gumroad", "Instagram", "Twitter", "Youtube"]
-
-for icon_name in icon_names:
-    icon_path = "icons/" + icon_name + ".png"
-    custom_icons.load(icon_name, icon_path, 'IMAGE')
-
-
 class PTB_PT_Panel:
     bl_label = "Pidgeon Tool Bag"
     bl_space_type = 'PROPERTIES'
@@ -48,7 +40,7 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag Version:")
-        row.label(text="0.5.0")
+        row.label(text="0.6.0")
 
         row = box.row()
         row.label(text="Super Fast Render Version:")
@@ -59,8 +51,20 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         row.label(text="1.2.0")
 
         row = box.row()
+        row.label(text="Super Real Sound Version:")
+        row.label(text="0.0.0")
+
+        row = box.row()
         row.label(text="Super Image Denoiser Version:")
         row.label(text="4.5.0")
+
+        row = box.row()
+        row.label(text="Super Resolution Render Version:")
+        row.label(text="1.4.0")
+
+        row = box.row()
+        row.label(text="Super Render Farm Version:")
+        row.label(text="0.1.0")
 
         col.separator(factor=0.5)
 
@@ -85,12 +89,12 @@ class PTB_PT_Socials_Panel(PTB_PT_Panel, Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.operator("wm.url_open", text="Join our Discord!", icon_value=custom_icons["Discord"].icon_id).url = "https://discord.gg/cnFdGQP"
+        col.operator("wm.url_open", text="Join our Discord!").url = "https://discord.gg/cnFdGQP"
         row = col.row()
-        row.operator("wm.url_open", text="YouTube", icon_value=custom_icons["Youtube"].icon_id).url = "https://www.youtube.com/channel/UCgLo3l_ZzNZ2BCQMYXLiIOg"
-        row.operator("wm.url_open", text="BlenderMarket", icon_value=custom_icons["BlenderMarket"].icon_id).url = "https://blendermarket.com/creators/kevin-lorengel"
-        row.operator("wm.url_open", text="Instagram", icon_value=custom_icons["Instagram"].icon_id).url = "https://www.instagram.com/pidgeontools/"
-        row.operator("wm.url_open", text="Twitter", icon_value=custom_icons["Twitter"].icon_id).url = "https://twitter.com/PidgeonTools"
+        row.operator("wm.url_open", text="YouTube").url = "https://www.youtube.com/channel/UCgLo3l_ZzNZ2BCQMYXLiIOg"
+        row.operator("wm.url_open", text="BlenderMarket").url = "https://blendermarket.com/creators/kevin-lorengel"
+        row.operator("wm.url_open", text="Instagram").url = "https://www.instagram.com/pidgeontools/"
+        row.operator("wm.url_open", text="Twitter").url = "https://twitter.com/PidgeonTools"
         col.operator("wm.url_open", text="Support and Feedback!", icon="HELP").url = "https://discord.gg/cnFdGQP"
 
 
@@ -111,5 +115,3 @@ def unregister_function():
                 bpy.utils.unregister_class(cls)
             except (RuntimeError, Exception) as e:
                 print(f"Failed to unregister {cls}: {e}")
-                
-    bpy.utils.previews.remove(custom_icons)
