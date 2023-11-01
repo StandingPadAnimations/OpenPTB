@@ -4,6 +4,11 @@ import sys
 import os
 import contextlib
 
+from bpy.types import (
+    Context,
+    Object,
+)
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[104m'
@@ -90,12 +95,12 @@ def format_time(seconds_float):
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
-def render_image(file_path):
+def render_image(file_path, mode='EXEC_DEFAULT'):
     """ Render the current scene to the specified file path and return the render time. """
-    start_time = time.time()
     bpy.context.scene.render.filepath = file_path
+    start_time = time.time()
     with suppress_stdout():
-        bpy.ops.render.render(write_still=True)
+        bpy.ops.render.render(mode, write_still=True)
     render_time = time.time() - start_time
     return render_time
 
@@ -105,3 +110,9 @@ def get_subframes(subframes):
     step_size = (end - start) / (subframes +1)
     frame_values = [round(start + i * step_size) for i in range(subframes + 2)]
     return frame_values
+
+
+def deselect_all(self, context):
+    for obj in context.view_layer.objects.selected:
+        obj: Object
+        obj.select_set(False)
