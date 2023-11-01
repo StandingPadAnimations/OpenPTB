@@ -9,7 +9,6 @@ from bpy.types import (
 )
 from mathutils import Vector
 from .SFR_Functions import *
-from typing import List, NamedTuple
 from distutils.dir_util import copy_tree
 from ..pidgeon_tool_bag.PTB_Functions import render_image, format_time, get_subframes, calculate_object_distance, clamp
 

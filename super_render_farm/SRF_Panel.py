@@ -1,5 +1,6 @@
 import bpy
 
+from ..pidgeon_tool_bag.PTB_Functions import template_boxtitle
 from ..pidgeon_tool_bag.PTB_PropertiesRender_Panel import PTB_PT_Panel
 
 from bpy.types import (
@@ -16,8 +17,137 @@ class SRF_PT_General_Panel(PTB_PT_Panel, Panel):
         layout.label(text="", icon="NETWORK_DRIVE")
 
     def draw(self, context: Context):
-        layout = self.layout
+        scene = context.scene
+        settings = scene.srf_settings
+        colmain = self.layout.column(align=False)
+        unsupported_formats = ["AVI_JPEG", "AVI_RAW", "FFMPEG"]
+        enable_ca = True
 
+        boxmaster = colmain.box()
+        template_boxtitle(settings, boxmaster, "master", "Master", "EXTERNAL_DRIVE")
+        if settings.show_master:
+
+            boxmastergeneral = boxmaster.box()
+            template_boxtitle(settings, boxmastergeneral, "master_general", "General Settings", "SETTINGS")
+            if settings.show_master_general:
+                col = boxmastergeneral.column()
+                col.prop(settings, "master_working_directory")
+                row = col.row()
+                row.prop(settings, "master_logging", toggle=True)
+                row.prop(settings, "master_analytics", toggle=True)
+                row.prop(settings, "master_data", toggle=True)
+                col.prop(settings, "master_port")
+                col.separator()
+
+                boxmasteradvanced = col.box()
+                template_boxtitle(settings, boxmasteradvanced, "master_advanced", "Advanced Settings", "SYSTEM")
+                if settings.show_master_advanced:
+                    colmasteradvanced = boxmasteradvanced.column()
+                    colmasteradvanced.prop(settings, "master_ipoverride")
+                    colmasteradvanced.prop(settings, "master_prf_override")
+                    colmasteradvanced.prop(settings, "master_db_override")
+                    colmasteradvanced.prop(settings, "master_client_limit")
+                    colmasteradvanced.separator()
+
+                    boxmasterftp = colmasteradvanced.box()
+                    template_boxtitle(settings, boxmasterftp, "master_ftp", "FTP Settings", "PLUGIN")
+                    if settings.show_master_ftp:
+                        col = boxmasterftp.column()
+                        col.prop(settings, "master_ftp_url")
+                        col.separator()
+                        col.prop(settings, "master_ftp_user")
+                        col.prop(settings, "master_ftp_pass")
+                    colmasteradvanced.separator(factor=0.2)
+
+                    boxmastersmb = colmasteradvanced.box()
+                    template_boxtitle(settings, boxmastersmb, "master_smb", "SMB Settings", "PLUGIN")
+                    if settings.show_master_smb:
+                        col = boxmastersmb.column()
+                        col.prop(settings, "master_smb_url")
+                        col.separator()
+                        col.prop(settings, "master_smb_user")
+                        col.prop(settings, "master_smb_pass")
+
+                colsave = boxmastergeneral.column()
+                colsave.scale_y = 1.5
+                colsave.operator("superrenderfarm.save_master_settings", text="Save Settings", icon="FILE_TICK")
+
+        boxrs = colmain.box()
+        template_boxtitle(settings, boxrs, "rs", "Render Settings", "MOD_HUE_SATURATION")
+        if settings.show_rs:
+
+            boxrsgeneral = boxrs.box()
+            template_boxtitle(settings, boxrsgeneral, "rs_general", "General Settings", "SETTINGS")
+            if settings.show_rs_general:
+                col = boxrsgeneral.column()
+                boxrsaddons = col.box()
+                colrsaddons = boxrsaddons.column()
+                colrsaddons.prop(settings, "rs_use_sfr", toggle=True)
+                colrsaddons.prop(settings, "rs_use_sidt", toggle=True)
+                col.separator(factor=0.2)
+                col.prop(settings, "rs_test_render", toggle=True)
+                col.prop(settings, "rs_batch_size")
+
+                boxrsadvanced = boxrsgeneral.box()
+                template_boxtitle(settings, boxrsadvanced, "rs_advanced", "Advanced Settings", "SYSTEM")
+                if settings.show_rs_advanced:
+                    col = boxrsadvanced.column()
+                    row = col.row()
+                    row.alignment = "CENTER"
+                    row.label(text="Transfer Method")
+                    row = col.row()
+                    row.prop(settings, "rs_transfer_method", expand=True)
+                    if settings.rs_transfer_method == "0":
+                        coltcp = col.box()
+                        coltcp.label(text="Everything is automatic", icon="INFO")
+                    elif settings.rs_transfer_method == "1":
+                        colsmb = col.box()
+                        if settings.master_smb_url == "":
+                            rowsmb = colsmb.row()
+                            rowsmb.label(text="SMB URL is empty", icon="CANCEL")
+                            rowsmb.prop(settings, "master_smb_url")
+                            enable_ca = False
+                        if settings.master_smb_user == "":
+                            rowsmb = colsmb.row()
+                            rowsmb.label(text="SMB Username is empty", icon="ERROR")
+                            rowsmb.prop(settings, "master_smb_user")
+                        if settings.master_smb_pass == "":
+                            rowsmb = colsmb.row()
+                            rowsmb.label(text="SMB Password is empty", icon="ERROR")
+                            rowsmb.prop(settings, "master_smb_pass")
+                    elif settings.rs_transfer_method == "2":
+                        colftp = col.box()
+                        if settings.master_ftp_url == "":
+                            rowftp = colftp.row()
+                            rowftp.label(text="FTP URL is empty", icon="CANCEL")
+                            rowftp.prop(settings, "master_ftp_url")
+                            enable_ca = False
+                        if settings.master_ftp_user == "":
+                            rowftp = colftp.row()
+                            rowftp.label(text="FTP Username is empty", icon="ERROR")
+                            rowftp.prop(settings, "master_ftp_user")
+                        if settings.master_ftp_pass == "":
+                            rowftp = colftp.row()
+                            rowftp.label(text="FTP Password is empty", icon="ERROR")
+                            rowftp.prop(settings, "master_ftp_pass")
+                    col.separator()
+                    col.prop(settings, "rs_render_device")
+                    col.prop(settings, "rs_close_blender", text="Close Blender on render start",toggle=True)
+
+        if scene.render.image_settings.file_format in unsupported_formats:
+            enable_ca = False
+            rowmain = colmain.row()
+            rowmain.alignment = "CENTER"
+            rowmain.scale_y = 1.5
+            rowmain.label(text="Unsupported file format", icon="CANCEL")
+            colmain.operator("superrenderfarm.gotooutput", text="Go To Outputs", icon="OUTPUT")
+
+        colaction = colmain.column()
+        colaction.scale_y = 1.5
+        colaction.enabled = enable_ca
+        rowaction = colaction.row(align=True)
+        rowaction.operator("superrenderfarm.start_render", text="Start Render", icon="RENDER_ANIMATION")
+        rowaction.operator("superrenderfarm.openfolderrender", text="", icon="FILE_FOLDER")
 
 classes = (
     SRF_PT_General_Panel,
