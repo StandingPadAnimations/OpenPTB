@@ -3,11 +3,12 @@ import time
 import sys
 import os
 import contextlib
-
 from bpy.types import (
     Context,
     Object,
 )
+from mathutils import Vector
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -111,8 +112,14 @@ def get_subframes(subframes):
     frame_values = [round(start + i * step_size) for i in range(subframes + 2)]
     return frame_values
 
-
 def deselect_all(self, context):
     for obj in context.view_layer.objects.selected:
         obj: Object
         obj.select_set(False)
+
+def calculate_object_distance(selected_object_loc: Vector, active_camera_loc):
+    return(selected_object_loc - active_camera_loc).length
+   
+def clamp(value, lower, upper):
+    return lower if value < lower else upper if value > upper else value
+

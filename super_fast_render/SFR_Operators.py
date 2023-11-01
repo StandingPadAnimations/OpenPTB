@@ -7,10 +7,11 @@ from bpy.types import (
     Context,
     Operator,
 )
-from .SRF_Functions import *
+from mathutils import Vector
+from .SFR_Functions import *
 from typing import List, NamedTuple
 from distutils.dir_util import copy_tree
-from ..pidgeon_tool_bag.PTB_Functions import render_image, format_time, get_subframes
+from ..pidgeon_tool_bag.PTB_Functions import render_image, format_time, get_subframes, calculate_object_distance, clamp
 
 #region dependencies
 
@@ -605,23 +606,79 @@ class SFR_OT_Texture_Optimization(Operator):
     
 # endregion textures
 
-#region meshoptimization
+#region mesh
 class SFR_OT_Mesh_Optimization_Frame(Operator):
     bl_idname = "superfastrender.mesh_optimization_frame"
     bl_label = "Frame Optimization"
     bl_description = ""
 
     def execute(self, context: Context):
-        print("Optimizing meshes for frame")
-        return {'FINISHED'}
+        # remove the optimization first
+        bpy.ops.superfastrender.mesh_optimization_remove()
+        print(bcolors.OKGREEN + "Starting Mesh Optimization..." + bcolors.ENDC)
+        # set some variables
+        settings = bpy.context.scene.sfr_settings
+        active_camera_loc = bpy.context.scene.camera.location
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        objects_to_optimize = []
 
-class SFR_OT_Mesh_Optimization_Animation(Operator):
-    bl_idname = "superfastrender.mesh_optimization_animation"
-    bl_label = "Animation Optimization"
-    bl_description = ""
+        if settings.decimation_selected:
+            objects_to_optimize = bpy.context.selected_objects
+        else:
+            objects_to_optimize = bpy.context.scene.objects
 
-    def execute(self, context: Context):
-        print("Optimizing meshes for animation")
+        for object_to_optimize in objects_to_optimize:
+            if object_to_optimize.type not in {'MESH'}:
+                continue
+                
+            object_mesh = object_to_optimize.evaluated_get(depsgraph).to_mesh()
+            if len(object_mesh.polygons) < 3:
+                continue
+
+            polygon_density = len(object_mesh.polygons) / ((object_to_optimize.dimensions[0] + 0.01) * (object_to_optimize.dimensions[1] + 0.01) * (object_to_optimize.dimensions[2] + 0.01)) / 1000
+            object_distance = calculate_object_distance(object_to_optimize.location, active_camera_loc)
+
+            decimation_ratio_render = clamp((1-((object_distance * polygon_density) * settings.decimation_ratio_render / 100))**5,settings.decimation_min_render,settings.decimation_max_render)
+            decimation_ratio_render = decimation_ratio_render if settings.decimation_dynamic_render else settings.decimation_render_factor
+
+            decimation_ratio_viewport = clamp((1-((object_distance * polygon_density) * settings.decimation_ratio_viewport / 100))**5,settings.decimation_min_viewport,settings.decimation_max_viewport)
+            decimation_ratio_viewport = decimation_ratio_viewport if settings.decimation_dynamic_viewport else settings.decimation_viewport_factor
+            
+            # Render
+            if ("[SFR] - Decimate - Render" not in object_to_optimize.modifiers) and settings.decimation_render:
+                decimate_modifier = object_to_optimize.modifiers.new(name="[SFR] - Decimate - Render", type='DECIMATE')
+                decimate_modifier.show_viewport = False
+                decimate_modifier.use_collapse_triangulate = True
+                decimate_modifier.ratio = decimation_ratio_render
+                print(bcolors.OKCYAN + "Adding Render Optimization: " + object_to_optimize.name + bcolors.ENDC)
+            else:
+                try:
+                    object_to_optimize.modifiers.get("[SFR] - Decimate - Render").ratio = decimation_ratio_render
+                    print(bcolors.OKCYAN + "Updating Render Optimization: " + object_to_optimize.name + bcolors.ENDC)
+                except:
+                    pass
+
+            # Viewport
+            if ("[SFR] - Decimate - Viewport" not in object_to_optimize.modifiers) and settings.decimation_viewport:
+                decimate_modifier = object_to_optimize.modifiers.new(name="[SFR] - Decimate - Viewport", type='DECIMATE')
+                decimate_modifier.show_render = False
+                decimate_modifier.use_collapse_triangulate = True
+                decimate_modifier.ratio = decimation_ratio_viewport
+                print(bcolors.OKCYAN + "Adding Viewport Optimization: " + object_to_optimize.name + bcolors.ENDC)
+            else:
+                try:
+                    object_to_optimize.modifiers.get("[SFR] - Decimate - Viewport").ratio = decimation_ratio_viewport
+                    print(bcolors.OKCYAN + "Updating Viewport Optimization: " + object_to_optimize.name + bcolors.ENDC)
+                except:
+                    pass
+
+            if settings.decimation_keyframe:
+                try: 
+                    object_to_optimize.keyframe_insert(data_path= 'modifiers["[SFR] - Decimate - Render"].ratio')
+                    object_to_optimize.keyframe_insert(data_path= 'modifiers["[SFR] - Decimate - Viewport"].ratio')
+                except:
+                    pass
+        print(bcolors.OKGREEN + "Mesh Optimization complete."+ bcolors.ENDC)
         return {'FINISHED'}
 
 class SFR_OT_Mesh_Optimization_Remove(Operator):
@@ -630,9 +687,30 @@ class SFR_OT_Mesh_Optimization_Remove(Operator):
     bl_description = ""
 
     def execute(self, context: Context):
-        print("Removing optimization")
-        return {'FINISHED'}
-#endregion meshoptimization
+        print(bcolors.OKGREEN + "Removing Mesh Optimization..." + bcolors.ENDC)
+        settings = bpy.context.scene.sfr_settings
+
+        objects_to_remove = []
+        if settings.decimation_selected:
+            objects_to_remove = bpy.context.selected_objects
+        else:
+            objects_to_remove = bpy.context.scene.objects
+
+        for object_to_remove in objects_to_remove:
+            if "[SFR] - Decimate - Render" not in object_to_remove.modifiers:
+                continue
+            else:
+                print(bcolors.OKCYAN + "Removing Render Optimization: " + object_to_remove.name + bcolors.ENDC)
+                object_to_remove.modifiers.remove(object_to_remove.modifiers.get("[SFR] - Decimate - Render"))
+                
+            if "[SFR] - Decimate - Viewport" not in object_to_remove.modifiers:
+                continue
+            else:
+                print(bcolors.OKCYAN + "Removing Viewport Optimization: " + object_to_remove.name + bcolors.ENDC)
+                object_to_remove.modifiers.remove(object_to_remove.modifiers.get("[SFR] - Decimate - Viewport"))
+        
+        return{'FINISHED'}
+#endregion mesh
 
 #region estimator
 class SFR_OT_Estimator_Time(Operator):
@@ -706,7 +784,6 @@ classes = (
     SFR_OT_Texture_Optimization,
 
     SFR_OT_Mesh_Optimization_Frame,
-    SFR_OT_Mesh_Optimization_Animation,
     SFR_OT_Mesh_Optimization_Remove,
 
     SFR_OT_Estimator_Time,

@@ -316,25 +316,73 @@ class SFR_Settings(PropertyGroup):
         description="Decimation",
     )
 
-    decimation_max: FloatProperty(
+    decimation_dynamic_render: BoolProperty(
+        default=True,
+        name="Dynamic",
+        description="Render",
+    )
+
+    decimation_max_render: FloatProperty(
         default=1,
-        min=0.01,
+        min=0.02,
         max=1,
         name="Max. Quality",
         description="Max",
         subtype="FACTOR",
     )
 
-    decimation_min: FloatProperty(
+    decimation_min_render: FloatProperty(
         default=0,
-        min=0,
+        min=0.01,
         max=1,
         name="Min. Quality",
         description="Min",
         subtype="FACTOR",
     )
 
-    decimation_ratio: FloatProperty(
+    decimation_ratio_render: FloatProperty(
+        default=0.1,
+        min=0.01,
+        max=1,
+        name="Quality Change",
+        description="Ratio",
+        subtype="FACTOR",
+    )
+
+    decimation_render_factor: FloatProperty(
+        default=0.5,
+        min=0.01,
+        max=1,
+        name="Render Factor",
+        description="Render Factor",
+        subtype="FACTOR",
+    )
+
+    decimation_dynamic_viewport: BoolProperty(
+        default=True,
+        name="Dynamic",
+        description="Viewport",
+    )
+
+    decimation_max_viewport: FloatProperty(
+        default=1,
+        min=0.02,
+        max=1,
+        name="Max. Quality",
+        description="Max",
+        subtype="FACTOR",
+    )
+
+    decimation_min_viewport: FloatProperty(
+        default=0,
+        min=0.01,
+        max=1,
+        name="Min. Quality",
+        description="Min",
+        subtype="FACTOR",
+    )
+
+    decimation_ratio_viewport: FloatProperty(
         default=0.1,
         min=0.01,
         max=1,
@@ -352,12 +400,16 @@ class SFR_Settings(PropertyGroup):
         subtype="FACTOR",
     )
 
-    decimation_frame_offset: IntProperty(
-        default=50,
-        min=1,
-        soft_max=100,
-        name="Frame Offset",
-        description="Frame Offset",
+    decimation_selected: BoolProperty(
+        default=False,
+        name="Selected Only",
+        description="Selected",
+    )
+
+    decimation_keyframe: BoolProperty(
+        default=True,
+        name="Keyframe",
+        description="Keyframe",
     )
 
     # Render Estimator
@@ -365,7 +417,6 @@ class SFR_Settings(PropertyGroup):
     renderestimator_duration: StringProperty(
         default="00:00:00",
         name="Duration",
-        description="Duration",
     )
 
     renderestimator_subframes: IntProperty(
@@ -380,7 +431,7 @@ class SFR_Settings(PropertyGroup):
         min=0,
         max=2,
         name="Divisions",
-        description="Divisions",
+        description="How many times the render should be divided.",
     )
 
 # Register
