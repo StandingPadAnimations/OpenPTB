@@ -42,7 +42,3 @@ def unregister_function():
     bpy.utils.previews.remove(bpy.types.Scene.bokeh_previews)
     bpy.utils.previews.remove(bpy.types.Scene.filter_previews)
     bpy.utils.previews.remove(bpy.types.Scene.gradient_previews)
-
-
-if __name__ == "__main__":
-    register()

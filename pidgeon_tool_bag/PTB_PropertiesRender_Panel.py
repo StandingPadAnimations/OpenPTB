@@ -48,11 +48,11 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag Version:")
-        row.label(text="0.4.0")
+        row.label(text="0.5.0")
 
         row = box.row()
         row.label(text="Super Fast Render Version:")
-        row.label(text="3.3.0")
+        row.label(text="3.4.0")
 
         row = box.row()
         row.label(text="Super Advanced Camera Version:")
@@ -65,6 +65,7 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         col.separator(factor=0.5)
 
         box = col.box()
+        
         word_wrap(
             string="This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. Alternatively, see https://www.gnu.org/licenses/",
             layout=box,
@@ -110,3 +111,5 @@ def unregister_function():
                 bpy.utils.unregister_class(cls)
             except (RuntimeError, Exception) as e:
                 print(f"Failed to unregister {cls}: {e}")
+                
+    bpy.utils.previews.remove(custom_icons)
