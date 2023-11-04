@@ -57,16 +57,17 @@ def install_pip():
         os.environ.pop("PIP_REQ_TRACKER", None)
 
 def install_module(module_name, package_name=None):
+    from pathlib import Path
+
     if package_name is None:
         package_name = module_name
     
-    # Create a folder to install python modules
-    module_path = os.path.join(os.path.dirname(__file__), "python_modules")
-    if not os.path.exists(module_path):
-        os.mkdir(module_path)
+    environ_dict = dict(os.environ)
+    module_path = Path.joinpath(Path(os.path.dirname(__file__)).parent, Path("python_modules"))
+    if not module_path.exists():
+        module_path.mkdir()
+    subprocess.run([sys.executable, "-m", "pip", "install", package_name, "-t", module_path], check=True, env=environ_dict)
 
-    environ_copy = dict(os.environ)
-    subprocess.run([sys.executable, "-m", "pip", "install", package_name, "-t", module_path], check=True, env=environ_copy)
 
 class dependencies_check_singleton(object):
     def __init__(self):
