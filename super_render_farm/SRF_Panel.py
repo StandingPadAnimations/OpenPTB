@@ -2,6 +2,7 @@ import bpy
 
 from ..pidgeon_tool_bag.PTB_Functions import template_boxtitle
 from ..pidgeon_tool_bag.PTB_PropertiesRender_Panel import PTB_PT_Panel
+from ..__init__ import PTB_Preferences
 
 from bpy.types import (
     Context,
@@ -23,54 +24,9 @@ class SRF_PT_General_Panel(PTB_PT_Panel, Panel):
         unsupported_formats = ["AVI_JPEG", "AVI_RAW", "FFMPEG"]
         enable_ca = True
 
-        boxmaster = colmain.box()
-        template_boxtitle(settings, boxmaster, "master", "Master", "EXTERNAL_DRIVE")
-        if settings.show_master:
-
-            boxmastergeneral = boxmaster.box()
-            template_boxtitle(settings, boxmastergeneral, "master_general", "General Settings", "SETTINGS")
-            if settings.show_master_general:
-                col = boxmastergeneral.column()
-                col.prop(settings, "master_working_directory")
-                row = col.row()
-                row.prop(settings, "master_logging", toggle=True)
-                row.prop(settings, "master_analytics", toggle=True)
-                row.prop(settings, "master_data", toggle=True)
-                col.prop(settings, "master_port")
-                col.separator()
-
-                boxmasteradvanced = col.box()
-                template_boxtitle(settings, boxmasteradvanced, "master_advanced", "Advanced Settings", "SYSTEM")
-                if settings.show_master_advanced:
-                    colmasteradvanced = boxmasteradvanced.column()
-                    colmasteradvanced.prop(settings, "master_ipoverride")
-                    colmasteradvanced.prop(settings, "master_prf_override")
-                    colmasteradvanced.prop(settings, "master_db_override")
-                    colmasteradvanced.prop(settings, "master_client_limit")
-                    colmasteradvanced.separator()
-
-                    boxmasterftp = colmasteradvanced.box()
-                    template_boxtitle(settings, boxmasterftp, "master_ftp", "FTP Settings", "PLUGIN")
-                    if settings.show_master_ftp:
-                        col = boxmasterftp.column()
-                        col.prop(settings, "master_ftp_url")
-                        col.separator()
-                        col.prop(settings, "master_ftp_user")
-                        col.prop(settings, "master_ftp_pass")
-                    colmasteradvanced.separator(factor=0.2)
-
-                    boxmastersmb = colmasteradvanced.box()
-                    template_boxtitle(settings, boxmastersmb, "master_smb", "SMB Settings", "PLUGIN")
-                    if settings.show_master_smb:
-                        col = boxmastersmb.column()
-                        col.prop(settings, "master_smb_url")
-                        col.separator()
-                        col.prop(settings, "master_smb_user")
-                        col.prop(settings, "master_smb_pass")
-
-                colsave = boxmastergeneral.column()
-                colsave.scale_y = 1.5
-                colsave.operator("superrenderfarm.save_master_settings", text="Save Settings", icon="FILE_TICK")
+        colaction = colmain.column()
+        colaction.scale_y = 1.5
+        colaction.operator("pidgeontoolbag.open_addon_prefs", text="Open Master Settings", icon="EXTERNAL_DRIVE")
 
         boxrs = colmain.box()
         template_boxtitle(settings, boxrs, "rs", "Render Settings", "MOD_HUE_SATURATION")

@@ -5,7 +5,7 @@ from bpy.types import (
 
 from .PTB_Functions import dependencies
 
-class PTB_OT_CheckDependencies(bpy.types.Operator):
+class PTB_OT_CheckDependencies(Operator):
     bl_idname = "pidgeontoolbag.check_dependencies"
     bl_label = "Check Dependencies"
     bl_description = "Checks for the Python dependencies required by the addon"
@@ -18,7 +18,7 @@ class PTB_OT_CheckDependencies(bpy.types.Operator):
         dependencies.check_dependencies()
         return {"FINISHED"}
     
-class PTB_OT_InstallDependencies(bpy.types.Operator):
+class PTB_OT_InstallDependencies(Operator):
     bl_idname = "pidgeontoolbag.install_dependencies"
     bl_label = "Install Dependencies"
     bl_description = "Install the Python dependencies required by the addon"
