@@ -1,7 +1,11 @@
+import os, sys
+module_path = os.path.join(os.path.dirname(__file__), "python_modules")
+sys.path.append(module_path) # Add a module path for this specific addon
+
 import bpy
-from bpy.utils import previews
 from bpy.app.handlers import persistent
 
+from .pidgeon_tool_bag import PTB_init
 from .super_fast_render import SFR_init
 from .super_advanced_camera import SAC_init, SAC_Functions
 from .super_real_sound import SRS_init
@@ -16,7 +20,7 @@ from .pidgeon_tool_bag import (
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
     "author": "Kevin Lorengel",
-    "version": (0, 6, 0),
+    "version": (0, 6, 1),
     "blender": (4, 0, 0),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
@@ -27,6 +31,18 @@ bl_info = {
     "category": "",
 }
 
+
+class PTB_Preferences(bpy.types.AddonPreferences):
+    bl_idname = __package__
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column(align=True)
+        col.label(text="Pidgeon Tool Bag (PTB) Preferences", icon="PREFERENCES")
+        col.separator()
+        row=col.row(align=True)
+        row.operator("pidgeontoolbag.check_dependencies", icon="FILE_REFRESH")
+        row.operator("pidgeontoolbag.install_dependencies", icon="FILE_FOLDER")
 
 #  _____   ___   _____ 
 # /  ___| / _ \ /  __ \
@@ -76,8 +92,22 @@ def load_handler(dummy):
 #  \____/ \___||_| |_| \___||_|    \__,_||_|
                                           
 
+classes_pre = (
+    PTB_Preferences,
+)
+
+classes_post = (
+    PTB_PropertiesRender_Panel.PTB_PT_Info_Panel,
+    PTB_PropertiesRender_Panel.PTB_PT_Socials_Panel,
+)
+
+classes_all = classes_pre + classes_post
+
 def register():
-    PTB_PropertiesRender_Panel.register_function()
+    for cls in classes_pre:
+        bpy.utils.register_class(cls)
+
+    PTB_init.register_function()
     SFR_init.register_function()
     SAC_init.register_function()
     SRS_init.register_function()
@@ -85,13 +115,13 @@ def register():
     SRR_init.register_function()
     SRF_init.register_function()
 
-    bpy.utils.register_class(PTB_PropertiesRender_Panel.PTB_PT_Info_Panel)
-    bpy.utils.register_class(PTB_PropertiesRender_Panel.PTB_PT_Socials_Panel)
+    for cls in classes_post:
+        bpy.utils.register_class(cls)
     
     bpy.app.handlers.load_post.append(load_handler)
 
 def unregister():
-    PTB_PropertiesRender_Panel.unregister_function()
+    PTB_init.unregister_function()
     SRF_init.unregister_function()
     SRR_init.unregister_function()
     SID_init.unregister_function()
@@ -99,13 +129,10 @@ def unregister():
     SAC_init.unregister_function()
     SFR_init.unregister_function()
 
-    try:
-        bpy.utils.unregister_class(PTB_PropertiesRender_Panel.PTB_PT_Socials_Panel)
-    except (RuntimeError, Exception) as e:
-        print(f"Failed to unregister: {e}")
-
-    try:
-        bpy.utils.unregister_class(PTB_PropertiesRender_Panel.PTB_PT_Info_Panel)
-    except (RuntimeError, Exception) as e:
-        print(f"Failed to unregister: {e}")
+    for cls in reversed(classes_all):
+        if hasattr(bpy.types, cls.__name__):
+            try:
+                bpy.utils.unregister_class(cls)
+            except (RuntimeError, Exception) as e:
+                print(f"Failed to unregister {cls}: {e}")
         
