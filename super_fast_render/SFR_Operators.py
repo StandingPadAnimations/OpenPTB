@@ -1,57 +1,12 @@
 import bpy
 import os
-import cv2
-import numpy as np
-import time
 from bpy.types import (
     Context,
     Operator,
 )
-from mathutils import Vector
 from .SFR_Functions import *
 from distutils.dir_util import copy_tree
 from ..pidgeon_tool_bag.PTB_Functions import render_image, format_time, get_subframes, calculate_object_distance, clamp
-
-#region dependencies
-
-class SFR_OT_CheckDependencies(Operator):
-    bl_idname = "superfastrender.check_dependencies"
-    bl_label = "Check Dependencies"
-    bl_description = "Checks for the Python dependencies required by the addon"
-
-    @classmethod
-    def poll(cls, context):
-        return not dependencies.checked or dependencies.needs_install
-
-    def execute(self, context):
-        dependencies.check_dependencies()
-
-        return {'FINISHED'}
-
-
-class SFR_OT_InstallDependencies(Operator):
-    bl_idname = "superfastrender.install_dependencies"
-    bl_label = "Install Dependencies"
-    bl_description = "Install the Python dependencies required by the addon"
-
-    @classmethod
-    def poll(cls, context):
-        if not dependencies.checked:
-            dependencies.check_dependencies()
-
-        return dependencies.needs_install
-
-    def execute(self, context):
-        try:
-            dependencies.install_dependencies()
-        except ValueError as ve:
-            self.report({"ERROR"}, f"Error installing package {ve.args[0]}.\n\nCheck the System Console for details.")
-
-        if dependencies.error:
-            return {'CANCELLED'}
-
-        return {'FINISHED'}
-#endregion dependencies
 
 #region bechmark_frame
 
@@ -768,9 +723,6 @@ class SFR_OT_Estimator_Time(Operator):
 #endregion estimator
 
 classes = (
-    SFR_OT_CheckDependencies,
-    SFR_OT_InstallDependencies,
-
     SFR_OT_Benchmark_Frame,
     SFR_OT_OpenFolderBenchmarked,
 

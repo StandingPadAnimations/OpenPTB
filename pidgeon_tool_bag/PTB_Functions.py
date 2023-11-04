@@ -3,8 +3,11 @@ import time
 import sys
 import os
 import contextlib
+import subprocess
+import importlib
+from collections import namedtuple
+from .PTB_Functions import *
 from bpy.types import (
-    Context,
     Object,
 )
 from mathutils import Vector
@@ -22,6 +25,114 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+
+#region dependencies
+
+dependency = namedtuple("dependency", ["module", "package", "name", "skip_import"])
+
+required_dependencies = (
+    dependency(module="cv2", package="opencv-python", name="cv2", skip_import=False),
+    dependency(module="cv2", package="opencv-contrib-python", name="cv2", skip_import=False),
+    dependency(module="numpy", package="numpy", name="numpy", skip_import=False),
+    dependency(module="matplotlib", package="matplotlib", name="matplotlib", skip_import=False),
+)
+
+def import_module(module_name, global_name=None):
+    if global_name is None:
+        global_name = module_name
+
+    if global_name in globals():
+        importlib.reload(globals()[global_name])
+    else:
+        globals()[global_name] = importlib.import_module(module_name)
+
+def install_pip():
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "--version"], check=True)
+    except subprocess.CalledProcessError:
+        import ensurepip
+
+        ensurepip.bootstrap()
+        os.environ.pop("PIP_REQ_TRACKER", None)
+
+def install_module(module_name, package_name=None):
+    from pathlib import Path
+
+    if package_name is None:
+        package_name = module_name
+    
+    environ_dict = dict(os.environ)
+    module_path = Path.joinpath(Path(os.path.dirname(__file__)).parent, Path("python_modules"))
+    if not module_path.exists():
+        module_path.mkdir()
+    subprocess.run([sys.executable, "-m", "pip", "install", package_name, "-t", module_path], check=True, env=environ_dict)
+
+
+class dependencies_check_singleton(object):
+    def __init__(self):
+        self._checked = False
+        self._needs_install = False
+        self._error = False
+        self._success = False
+
+    # Properties
+
+    @property
+    def checked(self):
+        return self._checked
+
+    @property
+    def error(self):
+        return self._error
+
+    @property
+    def success(self):
+        return self._success
+
+    @property
+    def needs_install(self):
+        return self._needs_install
+
+    # Methods
+
+    def check_dependencies(self):
+        self._checked = False
+        try:
+            for dependency in required_dependencies:
+                if dependency.skip_import: continue
+                print(f"Checking for {dependency.module}...")
+                import_module(dependency.module, dependency.name)
+                print(f"Found {dependency.module}.")
+            self._needs_install = False
+        except ModuleNotFoundError:
+            print("One or more dependencies need to be installed.")
+            self._needs_install = True
+        self._checked = True
+
+    def install_dependencies(self):
+        self._error = False
+        self._success = False
+        # Update pip
+        print("Ensuring pip is installed...")
+        install_pip()
+        for dependency in required_dependencies:
+            package_name = dependency.package if dependency.package is not None else dependency.module
+            print(f"Installing {package_name}...")
+            try:
+                install_module(module_name=dependency.module, package_name=dependency.package)
+            except (subprocess.CalledProcessError, ImportError) as err:
+                self._error = True
+                print(f"Error installing {package_name}!")
+                print(str(err))
+                raise ValueError(package_name)
+        self._success = True
+        self.check_dependencies()
+        
+dependencies = dependencies_check_singleton()
+
+#endregion dependencies
+
 
 @contextlib.contextmanager
 def suppress_stdout():

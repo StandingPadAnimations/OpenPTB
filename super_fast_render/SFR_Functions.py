@@ -1,128 +1,24 @@
 #region import
 
 import bpy
-import importlib
 import os
-import cv2
 import numpy as np
-import subprocess
-import sys
-import contextlib
 import time
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-from collections import namedtuple
 from ..pidgeon_tool_bag.PTB_Functions import bcolors
 from pathlib import Path
 
+try:
+    import cv2
+except Exception:
+    pass
+
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
+except Exception:
+    pass
+
 #endregion import
-
-#region dependencies
-
-dependency = namedtuple("dependency", ["module", "package", "name", "skip_import"])
-
-required_dependencies = (
-    dependency(module="cv2", package="opencv-python", name="cv2", skip_import=False),
-    dependency(module="cv2", package="opencv-contrib-python", name="cv2", skip_import=False),
-    dependency(module="numpy", package="numpy", name="numpy", skip_import=False),
-    dependency(module="matplotlib", package="matplotlib", name="matplotlib", skip_import=False),
-)
-
-def import_module(module_name, global_name=None):
-    if global_name is None:
-        global_name = module_name
-
-    if global_name in globals():
-        importlib.reload(globals()[global_name])
-    else:
-        globals()[global_name] = importlib.import_module(module_name)
-
-def install_pip():
-    try:
-        subprocess.run([sys.executable, "-m", "pip", "--version"], check=True)
-    except subprocess.CalledProcessError:
-        import ensurepip
-
-        ensurepip.bootstrap()
-        os.environ.pop("PIP_REQ_TRACKER", None)
-
-def install_module(module_name, package_name=None):
-    if package_name is None:
-        package_name = module_name
-
-    environ_copy = dict(os.environ)
-    environ_copy["PYTHONNOUSERSITE"] = "1"
-
-    subprocess.run([sys.executable, "-m", "pip", "install", package_name], check=True, env=environ_copy)
-
-class dependencies_check_singleton(object):
-    def __init__(self):
-        self._checked = False
-        self._needs_install = False
-        self._error = False
-        self._success = False
-
-    # Properties
-
-    @property
-    def checked(self):
-        return self._checked
-
-    @property
-    def error(self):
-        return self._error
-
-    @property
-    def success(self):
-        return self._success
-
-    @property
-    def needs_install(self):
-        return self._needs_install
-
-    # Methods
-
-    def check_dependencies(self):
-        self._checked = False
-
-        try:
-            for dependency in required_dependencies:
-                if dependency.skip_import: continue
-                print(f"Checking for {dependency.module}...")
-                import_module(dependency.module, dependency.name)
-                print(f"Found {dependency.module}.")
-            self._needs_install = False
-        except ModuleNotFoundError:
-            print("One or more dependencies need to be installed.")
-            self._needs_install = True
-
-        self._checked = True
-
-    def install_dependencies(self):
-        self._error = False
-        self._success = False
-
-        print("Ensuring pip is installed...")
-        install_pip()
-
-        for dependency in required_dependencies:
-            package_name = dependency.package if dependency.package is not None else dependency.module
-            print(f"Installing {package_name}...")
-            try:
-                install_module(module_name=dependency.module, package_name=dependency.package)
-            except (subprocess.CalledProcessError, ImportError) as err:
-                self._error = True
-                print(f"Error installing {package_name}!")
-                print(str(err))
-                raise ValueError(package_name)
-
-        self._success = True
-
-        self.check_dependencies()
-
-dependencies = dependencies_check_singleton()
-
-#endregion dependencies
 
 #region TestRender
 

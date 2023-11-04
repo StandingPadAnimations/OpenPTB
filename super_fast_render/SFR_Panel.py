@@ -1,5 +1,5 @@
 import bpy
-from .SFR_Functions import dependencies
+from ..pidgeon_tool_bag.PTB_Functions import dependencies
 from bpy.types import (
     Context,
     Panel,
@@ -38,7 +38,7 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
                 if dependencies.needs_install:
                     boxcol_rso = boxmain.box()
                     boxcol_rso.label(text="Dependencies not found. Please install them.", icon="ERROR")
-                    boxcol_rso.operator("superfastrender.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
+                    boxcol_rso.operator("pidgeontoolbag.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
 
                 boxcol_rso = boxmain.box()
                 boxcol_rso.enabled = not dependencies.needs_install
@@ -213,7 +213,7 @@ class SFR_PT_General_Panel(PTB_PT_Panel, Panel):
             if dependencies.needs_install:
                 boxcol_to = boxmain.box()
                 boxcol_to.label(text="Dependencies not found. Please install them.", icon="ERROR")
-                boxcol_to.operator("superfastrender.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
+                boxcol_to.operator("pidgeontoolbag.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
 
             boxcol_to = boxmain.box()
             boxcol_to.enabled = not dependencies.needs_install
