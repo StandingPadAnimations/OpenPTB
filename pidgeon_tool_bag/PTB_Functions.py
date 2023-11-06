@@ -5,6 +5,8 @@ import os
 import contextlib
 import subprocess
 import importlib
+import json
+import typing
 from collections import namedtuple
 from .PTB_Functions import *
 from bpy.types import (
@@ -234,3 +236,21 @@ def calculate_object_distance(selected_object_loc: Vector, active_camera_loc):
 def clamp(value, lower, upper):
     return lower if value < lower else upper if value > upper else value
 
+
+def decode_json(path: str) -> typing.Union[dict, list]:
+    with open(path) as f:
+        j = json.load(f)
+    return j
+
+
+def encode_json(j: typing.Union[dict, list], path: str) -> typing.Union[dict, list]:
+    with open(path, "w+") as f:
+        json.dump(j, f, indent=4)
+    return j
+
+def set_file_hidden(f, hide_file=True):
+    if sys.platform != "win32":
+        return
+
+    hide_flag = "+h" if hide_file else "-h"
+    subprocess.call(f'attrib {hide_flag} "{f}"', shell=True)
