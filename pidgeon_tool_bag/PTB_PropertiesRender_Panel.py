@@ -40,7 +40,7 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag Version:")
-        row.label(text="0.8.0")
+        row.label(text="0.8.2")
 
         row = box.row()
         row.label(text="Super Project Manager Version:")
@@ -54,9 +54,9 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         row.label(text="Super Advanced Camera Version:")
         row.label(text="1.2.0")
 
-        row = box.row()
-        row.label(text="Super Real Sound Version:")
-        row.label(text="0.0.0")
+        # row = box.row()
+        # row.label(text="Super Real Sound Version:")
+        # row.label(text="0.0.0")
 
         row = box.row()
         row.label(text="Super Image Denoiser Version:")
@@ -68,7 +68,7 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Super Render Farm Version:")
-        row.label(text="0.1.0")
+        row.label(text="0.2.0")
 
         col.separator(factor=0.5)
 
