@@ -1429,7 +1429,7 @@ def create_temporal_setup(scene, view_layer_id: int):
 
     # search the completed folder for files with 10 digits and rename them to first 6 digits, so that 1234567890.png becomes 123456.png
     for file in os.listdir(path_completed):
-        if len(file.split(".")[0]) > 10:
+        if len(file.split(".")[0]) > 6:
             try:
                 os.rename(os.path.join(path_completed, file), os.path.join(path_completed, file.split(".")[0][0:6] + "." + file.split(".")[1]))
             except Exception as e:
