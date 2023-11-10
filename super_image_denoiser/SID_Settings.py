@@ -184,6 +184,12 @@ class SID_Settings(PropertyGroup):
         subtype="DIR_PATH",
     )
 
+    custom_name: StringProperty(
+        name="Custom File Name",
+        description="The custom name of the rendered and denoised images.\nLeave empty for default name.",
+        default="",
+    )
+
     # Smaller EXR Files
 
     smaller_exr_files: BoolProperty(
