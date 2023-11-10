@@ -39,36 +39,36 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         box = col.box()
 
         row = box.row()
-        row.label(text="Pidgeon Tool Bag Version:")
-        row.label(text="0.8.2")
+        row.label(text="Pidgeon Tool Bag:")
+        row.label(text="v0.8.2")
 
         row = box.row()
-        row.label(text="Super Project Manager Version:")
-        row.label(text="1.4.0")
+        row.label(text="Super Project Manager:")
+        row.label(text="v1.4.0")
 
         row = box.row()
-        row.label(text="Super Fast Render Version:")
-        row.label(text="3.5.0")
+        row.label(text="Super Fast Render:")
+        row.label(text="v3.5.0")
 
         row = box.row()
-        row.label(text="Super Advanced Camera Version:")
-        row.label(text="1.2.0")
+        row.label(text="Super Advanced Camera:")
+        row.label(text="v1.2.0")
 
         # row = box.row()
-        # row.label(text="Super Real Sound Version:")
-        # row.label(text="0.0.0")
+        # row.label(text="Super Real Sound:")
+        # row.label(text="v0.0.0")
 
         row = box.row()
-        row.label(text="Super Image Denoiser Version:")
-        row.label(text="4.6.0")
+        row.label(text="Super Image Denoiser:")
+        row.label(text="v4.6.0")
 
         row = box.row()
-        row.label(text="Super Resolution Render Version:")
-        row.label(text="1.4.0")
+        row.label(text="Super Resolution Render:")
+        row.label(text="v1.4.0")
 
         row = box.row()
-        row.label(text="Super Render Farm Version:")
-        row.label(text="0.2.0")
+        row.label(text="Super Render Farm:")
+        row.label(text="v0.2.0")
 
         col.separator(factor=0.5)
 
