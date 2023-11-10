@@ -1,6 +1,6 @@
 import bpy
-
 from ..pidgeon_tool_bag.PTB_PropertiesRender_Panel import PTB_PT_Panel
+from ..pidgeon_tool_bag.PTB_Functions import template_boxtitle
 
 from bpy.types import (
     Context,
@@ -10,13 +10,21 @@ from bpy.types import (
 class SRS_PT_General_Panel(PTB_PT_Panel, Panel):
     bl_label = "Super Real Sound"
     bl_parent_id = "PTB_PT_PTB_Panel"
-
+    
     def draw_header(self, context: Context):
         layout = self.layout
         layout.label(text="", icon="OUTLINER_DATA_SPEAKER")
 
     def draw(self, context: Context):
-        layout = self.layout
+        settings = bpy.context.scene.srs_settings
+
+        colmain = self.layout.column(align=False)
+        boxmain = colmain.box()
+        template_boxtitle(settings, boxmain, "dummy", "COMING SOON", "OPTIONS")
+        if settings.show_dummy:
+            boxmain.label(text="Super Real Sound is developed by Kevin.", icon="INFO")
+            boxmain.label(text="You can track the development on our discord server.", icon="INFO")
+            boxmain.operator("wm.url_open", text="Join Discord", icon="URL").url = "https://discord.gg/cnFdGQP"
 
 
 classes = (

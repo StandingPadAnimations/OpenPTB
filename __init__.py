@@ -43,7 +43,7 @@ from bpy.props import (
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
     "author": "Kevin Lorengel",
-    "version": (0, 7, 0),
+    "version": (0, 8, 5),
     "blender": (4, 0, 0),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
@@ -153,6 +153,7 @@ class PTB_Preferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         scene = context.scene
+        prefs = context.preferences.addons[__package__].preferences
         layout = self.layout
         col = layout.column(align=True)
 
@@ -171,7 +172,7 @@ class PTB_Preferences(bpy.types.AddonPreferences):
         row.operator("pidgeontoolbag.install_dependencies", icon="FILE_FOLDER")
         
         ### SUPER RENDER FARM ###
-
+#region SuperRenderFarm
         settings = scene.srf_settings
         boxmaster = colmain.box()
         template_boxtitle(settings, boxmaster, "master", "Super Render Farm: Master Settings", "EXTERNAL_DRIVE")
@@ -221,11 +222,11 @@ class PTB_Preferences(bpy.types.AddonPreferences):
                 colsave = boxmastergeneral.column()
                 colsave.scale_y = 1.5
                 colsave.operator("superrenderfarm.save_master_settings", text="Save Settings", icon="FILE_TICK")
+#endregion SuperRenderFarm
 
         ### SUPER PROJECT MANAGER ###
-
+#region SuperProjectManager
         settings = scene.spm_settings
-        prefs = context.preferences.addons[__package__].preferences
         boxmain = colmain.box()
         boxcolmain = boxmain.column()
         template_boxtitle(settings, boxcolmain, "main", "Super Project Manager", "FILE_BLEND")
@@ -314,6 +315,7 @@ class PTB_Preferences(bpy.types.AddonPreferences):
                         row.split(factor=0.1)
                         row.scale_y = 0.3
                         row.label(text=line)
+#endregion SuperProjectManager
 
 #endregion PreferencePanel
 
@@ -377,20 +379,24 @@ classes_post = (
 )
 
 classes_all = classes_pre + classes_post
+dev_mode = True
 
 def register():
     for cls in classes_pre:
         bpy.utils.register_class(cls)
 
+    # RELEASED
     PTB_init.register_function()
     SPM_init.register_function()
     SFR_init.register_function()
     SAC_init.register_function()
-    SRS_init.register_function()
     SID_init.register_function()
     SRR_init.register_function()
     SRF_init.register_function()
-    SEA_init.register_function()
+    # IN DEVELOPMENT
+    if dev_mode:
+        SRS_init.register_function()
+        SEA_init.register_function()
 
     for cls in classes_post:
         bpy.utils.register_class(cls)
@@ -398,11 +404,14 @@ def register():
     bpy.app.handlers.load_post.append(load_handler)
 
 def unregister():
-    SEA_init.unregister_function()
+    # IN DEVELOPMENT
+    if dev_mode:
+        SRS_init.unregister_function()
+        SEA_init.unregister_function()
+    # RELEASED
     SRF_init.unregister_function()
     SRR_init.unregister_function()
     SID_init.unregister_function()
-    SRS_init.unregister_function()
     SAC_init.unregister_function()
     SFR_init.unregister_function()
     SPM_init.unregister_function()
