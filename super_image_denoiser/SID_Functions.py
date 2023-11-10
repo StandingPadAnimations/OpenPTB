@@ -767,6 +767,7 @@ def cleanup_temporal_output_node():
 
 
 def create_temporal_output_node():
+    settings = bpy.context.scene.sid_settings
     cleanup_temporal_output_node()
 
     index = 0
@@ -780,8 +781,8 @@ def create_temporal_output_node():
             output_node.name = "SID Temporal Output"
             output_node.format.file_format = "OPEN_EXR_MULTILAYER"
             output_node.format.exr_codec = "PIZ"
-            output_node.format.color_depth = "16" if bpy.context.scene.sid_settings.smaller_exr_files else "32"
-            output_node.base_path = os.path.join(bpy.context.scene.sid_settings.working_directory, "processing", str(index), "######")
+            output_node.format.color_depth = "16" if settings.smaller_exr_files else "32"
+            output_node.base_path = os.path.join(settings.working_directory, "processing", str(index), settings.custom_name + "######")
             output_node.location = node.location[0] + 300, node.location[1] - 300
 
             # get the render layer node that SID is connected to
@@ -791,7 +792,7 @@ def create_temporal_output_node():
                     render_layer_node = link.from_node
 
             # link the node
-            link_nodes(bpy.context.scene.node_tree, node, bpy.context.scene.sid_settings.quality, output_node, 0)
+            link_nodes(bpy.context.scene.node_tree, node, settings.quality, output_node, 0)
             output_node.file_slots.new("Vector")
             link_nodes(bpy.context.scene.node_tree, render_layer_node, "Vector", output_node, "Vector")
             output_node.file_slots.new("Depth")
@@ -1260,14 +1261,14 @@ def create_temporal_setup(scene, view_layer_id: int):
     for node in compositor.nodes: compositor.nodes.remove(node)
 
     old_frame_start = scene.frame_start
-    scene.frame_start = 1
-    scene.frame_end = frames - 3
-    scene.frame_current = 1
+    scene.frame_start = 2
+    scene.frame_end = frames - 2
+    scene.frame_current = 2
 
     # create nodes
     def load_processing_image(image_offset: str):
 
-        image_path = os.path.join(path_processing, str(image_offset).zfill(6) + ".exr")
+        image_path = os.path.join(path_processing, settings.custom_name + str(image_offset).zfill(6) + ".exr")
         image_name = os.path.basename(image_path)
 
         if image_name in bpy.data.images:
@@ -1279,7 +1280,7 @@ def create_temporal_setup(scene, view_layer_id: int):
         return image
     
     def unload_processing_image(image_offset: str):
-        image_path = os.path.join(path_processing, str(image_offset).zfill(6) + ".exr")
+        image_path = os.path.join(path_processing, settings.custom_name + str(image_offset).zfill(6) + ".exr")
         image_name = os.path.basename(image_path)
 
         if image_name in bpy.data.images:
@@ -1330,7 +1331,7 @@ def create_temporal_setup(scene, view_layer_id: int):
         link_nodes(compositor, temporal_align, 0, sac_node_group, 0)
         link_nodes(compositor, sac_node_group, 0, output_node, "Image")
 
-    scene.render.filepath = os.path.join(path_completed, "######")
+    scene.render.filepath = os.path.join(path_completed, settings.custom_name + "######")
 
     output_format(scene.render.image_settings)
 
@@ -1347,8 +1348,8 @@ def create_temporal_setup(scene, view_layer_id: int):
     for file in os.listdir(path_processing):
         if file.endswith(".exr"):
             if first_frame_int == 0:
-                first_frame_int = int(file.split(".")[0])
-            last_frame_int = int(file.split(".")[0])
+                first_frame_int = int((file.split(".")[0]).replace(settings.custom_name, ""))
+            last_frame_int = int((file.split(".")[0]).replace(settings.custom_name, ""))
 
     first_frame = str(first_frame_int).zfill(6)
     last1_frame = str(last_frame_int - 1).zfill(6)
@@ -1358,7 +1359,7 @@ def create_temporal_setup(scene, view_layer_id: int):
 
     def create_temporal_image_nodes_comp(offset) -> Node:
         image_node = compositor.nodes.new("CompositorNodeImage")
-        image_node.image = bpy.data.images.load(os.path.join(path_processing, offset + ".exr"))
+        image_node.image = bpy.data.images.load(os.path.join(path_processing, settings.custom_name + offset + ".exr"))
         image_node.frame_duration = frames
         image_node.frame_start = 1
         image_node.frame_offset = int(offset) + int(old_frame_start) - 1
@@ -1385,9 +1386,9 @@ def create_temporal_setup(scene, view_layer_id: int):
 
     output_node.file_slots.remove(output_node.inputs[0])
 
-    first_frame_out = str(first_frame_int-1).zfill(6)
-    last1_frame_out = str(last_frame_int-2).zfill(6)
-    last_frame_out = str(last_frame_int-1).zfill(6)
+    first_frame_out = settings.custom_name + str(first_frame_int).zfill(6)
+    last1_frame_out = settings.custom_name + str(last_frame_int-1).zfill(6)
+    last_frame_out = settings.custom_name + str(last_frame_int).zfill(6)
 
     output_names = [first_frame_out, last1_frame_out, last_frame_out]
     for name in output_names:
@@ -1428,10 +1429,11 @@ def create_temporal_setup(scene, view_layer_id: int):
     unload_processing_image(last_frame)
 
     # search the completed folder for files with 10 digits and rename them to first 6 digits, so that 1234567890.png becomes 123456.png
+    length = len(settings.custom_name) + 6
     for file in os.listdir(path_completed):
-        if len(file.split(".")[0]) > 6:
+        if len(file.split(".")[0]) > length:
             try:
-                os.rename(os.path.join(path_completed, file), os.path.join(path_completed, file.split(".")[0][0:6] + "." + file.split(".")[1]))
+                os.rename(os.path.join(path_completed, file), os.path.join(path_completed, file.split(".")[0][0:length] + "." + file.split(".")[1]))
             except Exception as e:
                 print(bcolors.WARNING + "Error while renaming file:", e+ bcolors.ENDC)
 
@@ -1464,15 +1466,14 @@ def create_combine_setup(scene, view_layer_id: int):
     
     for node in compositor.nodes: compositor.nodes.remove(node)
 
-    old_frame_start = scene.frame_start
-    scene.frame_start = 0
-    scene.frame_end = frames - 1
-    scene.frame_current = 0
+    scene.frame_start = 1
+    scene.frame_end = frames
+    scene.frame_current = 1
 
     # create nodes
-    def load_processing_image(image_offset: str):
+    def load_processing_image():
 
-        image_path = os.path.join(path_completed, str(image_offset).zfill(6) + ends_with)
+        image_path = os.path.join(path_completed, settings.custom_name + str(scene.frame_start).zfill(6) + ends_with)
         image_name = os.path.basename(image_path)
 
         if image_name in bpy.data.images:
@@ -1483,15 +1484,15 @@ def create_combine_setup(scene, view_layer_id: int):
 
         return image
     
-    def unload_processing_image(image_offset: str):
-        image_path = os.path.join(path_completed, str(image_offset).zfill(6) + ends_with)
+    def unload_processing_image():
+        image_path = os.path.join(path_completed, settings.custom_name + str(scene.frame_start).zfill(6) + ends_with)
         image_name = os.path.basename(image_path)
 
         if image_name in bpy.data.images:
             bpy.data.images.remove(bpy.data.images.get(image_name))
 
     image_node = compositor.nodes.new("CompositorNodeImage")
-    image_node.image = load_processing_image(0)
+    image_node.image = load_processing_image()
     image_node.frame_duration = frames
     image_node.frame_start = 1
     image_node.frame_offset = -1
@@ -1502,7 +1503,7 @@ def create_combine_setup(scene, view_layer_id: int):
     # link the nodes
     link_nodes(compositor, image_node, "Image", output_node, 0)
 
-    scene.render.filepath = os.path.join(path_combined, "######")
+    scene.render.filepath = os.path.join(path_combined, settings.custom_name + "######")
 
     scene.render.image_settings.file_format = 'FFMPEG'
     scene.render.image_settings.color_mode = 'RGB'
@@ -1515,7 +1516,7 @@ def create_combine_setup(scene, view_layer_id: int):
     elif settings.file_format_video == "H264_in_Matroska_for_scrubbing": H264_in_Matroska_for_scrubbing(scene)
 
     bpy.ops.render.render(animation = True, scene = scene.name)
-    unload_processing_image(0)
+    unload_processing_image()
 
     
 

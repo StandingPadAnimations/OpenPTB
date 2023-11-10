@@ -57,6 +57,7 @@ def template_sidt_general(col, settings):
     if settings.show_general:
         boxcol = box.column()
         boxcol.prop(settings, "working_directory", icon="FILE_FOLDER")
+        boxcol.prop(settings, "custom_name", icon="TEXT")
         boxrow = boxcol.row()
         boxrow.prop(settings, "multilayer_exr", icon="RENDERLAYERS", toggle=True)
         boxrowexr = boxrow.row()

@@ -119,7 +119,7 @@ def setup_render_settings(context: Context):
     scene = context.scene
     settings = bpy.context.scene.sid_settings
 
-    scene.render.filepath = os.path.join(settings.working_directory, "preview", "######")
+    scene.render.filepath = os.path.join(settings.working_directory, "preview", settings.custom_name + "######")
     scene.camera.data.lens = ceil(scene.camera.data.lens * ((100 - settings.overscan) / 100))
     scene.render.resolution_percentage = ceil(scene.render.resolution_percentage * ((100 + settings.overscan) / 100))
 
@@ -131,7 +131,7 @@ def create_render_job(scene: Scene) -> List[RenderJob]:
     layer_counter = 0
     for view_layer in scene.view_layers:
 
-        filepath = os.path.join(settings.working_directory, "preview", str(layer_counter), "######")
+        filepath = os.path.join(settings.working_directory, "preview", str(layer_counter), settings.custom_name + "######")
         job = RenderJob(
             filepath=filepath,
             view_layer=view_layer,
