@@ -1466,15 +1466,14 @@ def create_combine_setup(scene, view_layer_id: int):
     
     for node in compositor.nodes: compositor.nodes.remove(node)
 
-    old_frame_start = scene.frame_start
-    scene.frame_start = 0
-    scene.frame_end = frames - 1
-    scene.frame_current = 0
+    scene.frame_start = 1
+    scene.frame_end = frames
+    scene.frame_current = 1
 
     # create nodes
-    def load_processing_image(image_offset: str):
+    def load_processing_image():
 
-        image_path = os.path.join(path_completed, settings.custom_name + str(image_offset).zfill(6) + ends_with)
+        image_path = os.path.join(path_completed, settings.custom_name + str(scene.frame_start).zfill(6) + ends_with)
         image_name = os.path.basename(image_path)
 
         if image_name in bpy.data.images:
@@ -1485,15 +1484,15 @@ def create_combine_setup(scene, view_layer_id: int):
 
         return image
     
-    def unload_processing_image(image_offset: str):
-        image_path = os.path.join(path_completed, settings.custom_name + str(image_offset).zfill(6) + ends_with)
+    def unload_processing_image():
+        image_path = os.path.join(path_completed, settings.custom_name + str(scene.frame_start).zfill(6) + ends_with)
         image_name = os.path.basename(image_path)
 
         if image_name in bpy.data.images:
             bpy.data.images.remove(bpy.data.images.get(image_name))
 
     image_node = compositor.nodes.new("CompositorNodeImage")
-    image_node.image = load_processing_image(0)
+    image_node.image = load_processing_image()
     image_node.frame_duration = frames
     image_node.frame_start = 1
     image_node.frame_offset = -1
@@ -1517,7 +1516,7 @@ def create_combine_setup(scene, view_layer_id: int):
     elif settings.file_format_video == "H264_in_Matroska_for_scrubbing": H264_in_Matroska_for_scrubbing(scene)
 
     bpy.ops.render.render(animation = True, scene = scene.name)
-    unload_processing_image(0)
+    unload_processing_image()
 
     
 
