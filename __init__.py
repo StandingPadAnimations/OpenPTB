@@ -379,7 +379,7 @@ classes_post = (
 )
 
 classes_all = classes_pre + classes_post
-dev_mode = True
+dev_mode = False
 
 def register():
     for cls in classes_pre:
