@@ -36,8 +36,7 @@ class SPM_OT_Build_Project(Operator):
         D = bpy.data
         scene = context.scene
         prefs: 'AddonPreferences' = bpy.context.preferences.addons[__package__.split(".")[0]].preferences
-        projectpath = os.path.join(context.scene.project_location,
-                             context.scene.project_name)
+        projectpath = os.path.join(context.scene.project_location, context.scene.project_name)
         filename = context.scene.save_file_name
 
         # Set the prefix.
@@ -58,8 +57,7 @@ class SPM_OT_Build_Project(Operator):
             unparsed_string = folders[is_render_outputfolder_set.index(
                 True)].folder_name
             render_outputfolder = Subfolders(
-                unparsed_string, prefix).compile_paths(os.path.join(context.scene.project_location,
-                                                              context.scene.project_name))[-1]  # Use last path.
+                unparsed_string, prefix).compile_paths(os.path.join(context.scene.project_location, context.scene.project_name))[-1]  # Use last path.
 
         # Create the Project Folder.
         if not os.path.isdir(projectpath):
@@ -69,8 +67,7 @@ class SPM_OT_Build_Project(Operator):
         for folder in folders:
             try:
                 s = Subfolders(folder.folder_name, prefix)
-                s.build_folders(os.path.join(context.scene.project_location,
-                                       context.scene.project_name))
+                s.build_folders(os.path.join(context.scene.project_location, context.scene.project_name))
             except:
                 pass
 
@@ -164,304 +161,304 @@ class SPM_OT_remove_folder(Operator):
         return {"FINISHED"}
 
 
-class SPM_OT_add_project(Operator, ImportHelper):
-    bl_idname = "superprojectmanager.add_project"
-    bl_label = "Add Project"
-    bl_description = "Add a Project"
+# class SPM_OT_add_project(Operator, ImportHelper):
+#     bl_idname = "superprojectmanager.add_project"
+#     bl_label = "Add Project"
+#     bl_description = "Add a Project"
 
-    filter_glob: StringProperty(default='*.filterall', options={'HIDDEN'})
+#     filter_glob: StringProperty(default='*.filterall', options={'HIDDEN'})
 
-    def execute(self, context: Context):
-        projectpath = os.path.dirname(self.filepath)
+#     def execute(self, context: Context):
+#         projectpath = os.path.dirname(self.filepath)
 
-        message_type, message = add_unfinished_project(projectpath)
-        self.report(message_type, message)
-        return {"FINISHED"}
+#         message_type, message = add_unfinished_project(projectpath)
+#         self.report(message_type, message)
+#         return {"FINISHED"}
 
-    def draw(self, context: Context):
-        layout = self.layout
-        layout.label(text="Please select a project Directory")
+#     def draw(self, context: Context):
+#         layout = self.layout
+#         layout.label(text="Please select a project Directory")
 
 
-class SPM_OT_finish_project(Operator):
-    bl_idname = "superprojectmanager.finish_project"
-    bl_label = "Finish Project"
-    bl_description = "Finish the selected Project."
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_finish_project(Operator):
+#     bl_idname = "superprojectmanager.finish_project"
+#     bl_label = "Finish Project"
+#     bl_description = "Finish the selected Project."
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
-    project_name: StringProperty()
+#     index: IntProperty()
+#     project_name: StringProperty()
 
-    def execute(self, context: Context):
-        finish_project(self.index)
-        return {'FINISHED'}
+#     def execute(self, context: Context):
+#         finish_project(self.index)
+#         return {'FINISHED'}
 
-    def invoke(self, context: Context, event: Event):
-        return context.window_manager.invoke_props_dialog(self)
+#     def invoke(self, context: Context, event: Event):
+#         return context.window_manager.invoke_props_dialog(self)
 
-    def draw(self, context: Context):
-        layout: UILayout = self.layout
-        # layout.prop(self, "disable")
+#     def draw(self, context: Context):
+#         layout: UILayout = self.layout
+#         # layout.prop(self, "disable")
 
-        layout.label(
-            text="Congratulations, you've finished your project!")
-        layout.separator()
+#         layout.label(
+#             text="Congratulations, you've finished your project!")
+#         layout.separator()
 
-        confirmation_text = f"Click OK below to remove '{self.project_name}' from your ToDo List."
-        if len(confirmation_text) > 55:
-            # Break up the confirmation text, if it is longer than 55 characters.
-            pieces = confirmation_text.split(" ")
-            confirmation_lines = []
+#         confirmation_text = f"Click OK below to remove '{self.project_name}' from your ToDo List."
+#         if len(confirmation_text) > 55:
+#             # Break up the confirmation text, if it is longer than 55 characters.
+#             pieces = confirmation_text.split(" ")
+#             confirmation_lines = []
 
-            line = ""
-            for p in pieces:
-                if len(line + p) > 55:
-                    confirmation_lines.append(line)
-                    line = ""
+#             line = ""
+#             for p in pieces:
+#                 if len(line + p) > 55:
+#                     confirmation_lines.append(line)
+#                     line = ""
 
-                line += p + " "
+#                 line += p + " "
 
-            confirmation_lines.append(line)
+#             confirmation_lines.append(line)
 
-            # Display the confirmation text line by line
-            for line in confirmation_lines:
-                row = layout.row()
-                row.scale_y = 0.6
-                row.label(text=line)
+#             # Display the confirmation text line by line
+#             for line in confirmation_lines:
+#                 row = layout.row()
+#                 row.scale_y = 0.6
+#                 row.label(text=line)
 
-        else:
-            layout.label(text=confirmation_text)
+#         else:
+#             layout.label(text=confirmation_text)
 
 
-class SPM_OT_redefine_project_path(Operator, ImportHelper):
-    bl_idname = "superprojectmanager.redefine_project_path"
-    bl_label = "Update Project path"
-    bl_description = "Your project has changed location - \
-please update the project path"
+# class SPM_OT_redefine_project_path(Operator, ImportHelper):
+#     bl_idname = "superprojectmanager.redefine_project_path"
+#     bl_label = "Update Project path"
+#     bl_description = "Your project has changed location - \
+# please update the project path"
 
-    name: StringProperty()
-    filter_glob: StringProperty(default='*.filterall', options={'HIDDEN'})
-    index: IntProperty()
+#     name: StringProperty()
+#     filter_glob: StringProperty(default='*.filterall', options={'HIDDEN'})
+#     index: IntProperty()
 
-    def execute(self, context: Context):
-        projectpath = os.path.dirname(self.filepath)
-        self.redefine_project_path(self.index, projectpath)
+#     def execute(self, context: Context):
+#         projectpath = os.path.dirname(self.filepath)
+#         self.redefine_project_path(self.index, projectpath)
 
-        message = "Successfully changed project path: " + \
-            os.path.basename(projectpath)
-        self.report({'INFO'}, message)
-        return {"FINISHED"}
+#         message = "Successfully changed project path: " + \
+#             os.path.basename(projectpath)
+#         self.report({'INFO'}, message)
+#         return {"FINISHED"}
 
-    def draw(self, context: Context):
-        name = self.name
+#     def draw(self, context: Context):
+#         name = self.name
 
-        layout = self.layout
-        layout.label(text="Please select your project Directory for:")
-        layout.label(text=name)
+#         layout = self.layout
+#         layout.label(text="Please select your project Directory for:")
+#         layout.label(text=name)
 
-    def redefine_project_path(self, index, new_path):
-        data = decode_json(BPS_DATA_FILE)
+#     def redefine_project_path(self, index, new_path):
+#         data = decode_json(BPS_DATA_FILE)
 
-        data["unfinished_projects"][index][1] = new_path
-        encode_json(data, BPS_DATA_FILE)
+#         data["unfinished_projects"][index][1] = new_path
+#         encode_json(data, BPS_DATA_FILE)
 
 
-class SPM_OT_open_blender_file(Operator):
-    """Open the latest Blender-File of a project"""
-    bl_idname = "superprojectmanager.open_blender_file"
-    bl_label = "Open Blender File"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_open_blender_file(Operator):
+#     """Open the latest Blender-File of a project"""
+#     bl_idname = "superprojectmanager.open_blender_file"
+#     bl_label = "Open Blender File"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath: StringProperty()
-    message_type: StringProperty()
-    message: StringProperty()
+#     filepath: StringProperty()
+#     message_type: StringProperty()
+#     message: StringProperty()
 
-    def execute(self, context: Context):
+#     def execute(self, context: Context):
 
-        bpy.ops.wm.open_mainfile(filepath=self.filepath)
-        self.report(
-            {self.message_type}, self.message)
-        return {"FINISHED"}
+#         bpy.ops.wm.open_mainfile(filepath=self.filepath)
+#         self.report(
+#             {self.message_type}, self.message)
+#         return {"FINISHED"}
 
 
-class SPM_OT_define_blend_file_location(Operator, ImportHelper):
-    """This Operator is used to (re)define the location of the projects main Blender File"""
-    bl_idname = "superprojectmanager.define_blend_file_location"
-    bl_label = "Define Project Blender File Path"
-    bl_options = {'REGISTER', 'UNDO'}
-    bl_description = "Can't find the right path to the Blender File. \
-Please select the latest Blender File of you Project."
+# class SPM_OT_define_blend_file_location(Operator, ImportHelper):
+#     """This Operator is used to (re)define the location of the projects main Blender File"""
+#     bl_idname = "superprojectmanager.define_blend_file_location"
+#     bl_label = "Define Project Blender File Path"
+#     bl_options = {'REGISTER', 'UNDO'}
+#     bl_description = "Can't find the right path to the Blender File. \
+# Please select the latest Blender File of you Project."
 
-    filter_glob: StringProperty(default='*.blend', options={'HIDDEN'})
-    message_type: StringProperty()
-    message: StringProperty()
-    projectpath: StringProperty()
+#     filter_glob: StringProperty(default='*.blend', options={'HIDDEN'})
+#     message_type: StringProperty()
+#     message: StringProperty()
+#     projectpath: StringProperty()
 
-    def execute(self, context: Context):
-        # print(self.filepath)
-        write_project_info(self.projectpath, self.filepath)
+#     def execute(self, context: Context):
+#         # print(self.filepath)
+#         write_project_info(self.projectpath, self.filepath)
 
-        message = "Successfully defined Blender Filepath: " + \
-            os.path.basename(self.filepath)
-        self.report({'INFO'}, message)
+#         message = "Successfully defined Blender Filepath: " + \
+#             os.path.basename(self.filepath)
+#         self.report({'INFO'}, message)
 
-        bpy.ops.superprojectmanager.open_blender_file(
-            filepath=self.filepath, message_type="INFO", message=f"Opened the project file found in {self.filepath}")
-        return {"FINISHED"}
+#         bpy.ops.superprojectmanager.open_blender_file(
+#             filepath=self.filepath, message_type="INFO", message=f"Opened the project file found in {self.filepath}")
+#         return {"FINISHED"}
 
-    def draw(self, context: Context):
-        name = os.path.basename(self.projectpath)
+#     def draw(self, context: Context):
+#         name = os.path.basename(self.projectpath)
 
-        layout = self.layout
-        layout.label(text=self.message_type + ": " + self.message)
-        layout.label(text="Please select your project Directory for:")
-        layout.label(text=name)
+#         layout = self.layout
+#         layout.label(text=self.message_type + ": " + self.message)
+#         layout.label(text="Please select your project Directory for:")
+#         layout.label(text=name)
 
 
-class SPM_OT_rearrange_up(Operator):
-    """Rearrange a Project or Label one step up."""
-    bl_idname = "superprojectmanager.rearrange_up"
-    bl_label = "Rearrange Up"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_rearrange_up(Operator):
+#     """Rearrange a Project or Label one step up."""
+#     bl_idname = "superprojectmanager.rearrange_up"
+#     bl_label = "Rearrange Up"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
+#     index: IntProperty()
 
-    def execute(self, context: Context):
-        index = self.index
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         index = self.index
+#         data = decode_json(BPS_DATA_FILE)
 
-        data["unfinished_projects"][index], data["unfinished_projects"][index -
-                                                                        1] = data["unfinished_projects"][index - 1], data["unfinished_projects"][index]
+#         data["unfinished_projects"][index], data["unfinished_projects"][index -
+#                                                                         1] = data["unfinished_projects"][index - 1], data["unfinished_projects"][index]
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
 
-class SPM_OT_rearrange_down(Operator):
-    """Rearrange a Project or Label one step down."""
-    bl_idname = "superprojectmanager.rearrange_down"
-    bl_label = "Rearrange Down"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_rearrange_down(Operator):
+#     """Rearrange a Project or Label one step down."""
+#     bl_idname = "superprojectmanager.rearrange_down"
+#     bl_label = "Rearrange Down"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
+#     index: IntProperty()
 
-    def execute(self, context: Context):
-        index = self.index
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         index = self.index
+#         data = decode_json(BPS_DATA_FILE)
 
-        data["unfinished_projects"][index], data["unfinished_projects"][index +
-                                                                        1] = data["unfinished_projects"][index + 1], data["unfinished_projects"][index]
+#         data["unfinished_projects"][index], data["unfinished_projects"][index +
+#                                                                         1] = data["unfinished_projects"][index + 1], data["unfinished_projects"][index]
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
 
-class SPM_OT_rearrange_to_top(Operator):
-    """Rearrange a Project or Label to the top."""
-    bl_idname = "superprojectmanager.rearrange_to_top"
-    bl_label = "Rearrange to Top"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_rearrange_to_top(Operator):
+#     """Rearrange a Project or Label to the top."""
+#     bl_idname = "superprojectmanager.rearrange_to_top"
+#     bl_label = "Rearrange to Top"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
+#     index: IntProperty()
 
-    def execute(self, context: Context):
-        index = self.index
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         index = self.index
+#         data = decode_json(BPS_DATA_FILE)
 
-        element = data["unfinished_projects"].pop(index)
+#         element = data["unfinished_projects"].pop(index)
 
-        data["unfinished_projects"].insert(0, element)
+#         data["unfinished_projects"].insert(0, element)
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
 
-class SPM_OT_rearrange_to_bottom(Operator):
-    """Rearrange a Project or Label to the bottom."""
-    bl_idname = "superprojectmanager.rearrange_to_bottom"
-    bl_label = "Rearrange to Bottom"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_rearrange_to_bottom(Operator):
+#     """Rearrange a Project or Label to the bottom."""
+#     bl_idname = "superprojectmanager.rearrange_to_bottom"
+#     bl_label = "Rearrange to Bottom"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
+#     index: IntProperty()
 
-    def execute(self, context: Context):
-        index = self.index
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         index = self.index
+#         data = decode_json(BPS_DATA_FILE)
 
-        element = data["unfinished_projects"].pop(index)
+#         element = data["unfinished_projects"].pop(index)
 
-        data["unfinished_projects"].append(element)
+#         data["unfinished_projects"].append(element)
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
 
-class SPM_OT_add_label(Operator):
-    """Add a category Label to the open projects list."""
-    bl_idname = "superprojectmanager.add_label"
-    bl_label = "Add Label"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_add_label(Operator):
+#     """Add a category Label to the open projects list."""
+#     bl_idname = "superprojectmanager.add_label"
+#     bl_label = "Add Label"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    label: StringProperty()
+#     label: StringProperty()
 
-    def execute(self, context: Context):
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         data = decode_json(BPS_DATA_FILE)
 
-        data["unfinished_projects"].append(["label", self.label])
+#         data["unfinished_projects"].append(["label", self.label])
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
-    def invoke(self, context: Context, event: Event):
-        return context.window_manager.invoke_props_dialog(self)
+#     def invoke(self, context: Context, event: Event):
+#         return context.window_manager.invoke_props_dialog(self)
 
-    def draw(self, context: Context):
-        layout: UILayout = self.layout
+#     def draw(self, context: Context):
+#         layout: UILayout = self.layout
 
-        layout.prop(self, "label", text="Category Label Text:")
+#         layout.prop(self, "label", text="Category Label Text:")
 
 
-class SPM_OT_remove_label(Operator):
-    """Remove a category Label from the open projects list."""
-    bl_idname = "superprojectmanager.remove_label"
-    bl_label = "Remove Label"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_remove_label(Operator):
+#     """Remove a category Label from the open projects list."""
+#     bl_idname = "superprojectmanager.remove_label"
+#     bl_label = "Remove Label"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
+#     index: IntProperty()
 
-    def execute(self, context: Context):
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         data = decode_json(BPS_DATA_FILE)
 
-        data["unfinished_projects"].pop(self.index)
+#         data["unfinished_projects"].pop(self.index)
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
 
-class SPM_OT_change_label(Operator):
-    """Change a category Label from the open projects list."""
-    bl_idname = "superprojectmanager.change_label"
-    bl_label = "Change Label"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_change_label(Operator):
+#     """Change a category Label from the open projects list."""
+#     bl_idname = "superprojectmanager.change_label"
+#     bl_label = "Change Label"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
-    label: StringProperty()
+#     index: IntProperty()
+#     label: StringProperty()
 
-    def execute(self, context: Context):
-        data = decode_json(BPS_DATA_FILE)
+#     def execute(self, context: Context):
+#         data = decode_json(BPS_DATA_FILE)
 
-        data["unfinished_projects"][self.index] = ["label", self.label]
+#         data["unfinished_projects"][self.index] = ["label", self.label]
 
-        encode_json(data, BPS_DATA_FILE)
-        return {'FINISHED'}
+#         encode_json(data, BPS_DATA_FILE)
+#         return {'FINISHED'}
 
-    def invoke(self, context: Context, event: Event):
-        return context.window_manager.invoke_props_dialog(self)
+#     def invoke(self, context: Context, event: Event):
+#         return context.window_manager.invoke_props_dialog(self)
 
-    def draw(self, context: Context):
-        layout: UILayout = self.layout
+#     def draw(self, context: Context):
+#         layout: UILayout = self.layout
 
-        layout.prop(self, "label", text="Category Label Text:")
+#         layout.prop(self, "label", text="Category Label Text:")
 
 
 class SPM_OT_add_structure_set(Operator):
@@ -517,189 +514,189 @@ class SPM_OT_remove_structure_set(Operator):
         return {'FINISHED'}
 
 
-class SPM_OT_add_panel_project(Operator):
-    """Add a project to the project panel."""
-    bl_idname = "superprojectmanager.add_panel_project"
-    bl_label = "Add"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_add_panel_project(Operator):
+#     """Add a project to the project panel."""
+#     bl_idname = "superprojectmanager.add_panel_project"
+#     bl_label = "Add"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context: 'Context'):
-        data: dict = decode_json(BPS_DATA_FILE)
-        prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
+#     def execute(self, context: 'Context'):
+#         data: dict = decode_json(BPS_DATA_FILE)
+#         prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
 
-        project_path = os.path.normpath(
-            context.space_data.params.directory.decode("utf-8"))
+#         project_path = os.path.normpath(
+#             context.space_data.params.directory.decode("utf-8"))
 
-        options = data.get("filebrowser_panel_options", [])[:]
-        options.append(project_path)
+#         options = data.get("filebrowser_panel_options", [])[:]
+#         options.append(project_path)
 
-        data["filebrowser_panel_options"] = options
+#         data["filebrowser_panel_options"] = options
 
-        encode_json(data, BPS_DATA_FILE)
+#         encode_json(data, BPS_DATA_FILE)
 
-        prefs.active_project = project_path
+#         prefs.active_project = project_path
 
-        return {'FINISHED'}
-
-
-class SPM_OT_remove_panel_project(Operator):
-    """Remove a project from the project panel."""
-    bl_idname = "superprojectmanager.remove_panel_project"
-    bl_label = "remove"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context: 'Context'):
-        data: dict = decode_json(BPS_DATA_FILE)
-        prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
-
-        options = data.get("filebrowser_panel_options", [])[:]
-        options.remove(prefs.active_project)
-
-        data["filebrowser_panel_options"] = options
-
-        encode_json(data, BPS_DATA_FILE)
-
-        prefs.active_project = options[0]
-
-        return {'FINISHED'}
+#         return {'FINISHED'}
 
 
-class SPM_OT_panel_folder_base(Operator):
-    """Base operator for panel folder operations"""
-    bl_idname = "superprojectmanager.panel_folder_base"
-    bl_label = "Panel Folder Base"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_remove_panel_project(Operator):
+#     """Remove a project from the project panel."""
+#     bl_idname = "superprojectmanager.remove_panel_project"
+#     bl_label = "remove"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    def invoke(self, context: Context, event: Event):
-        prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
+#     def execute(self, context: 'Context'):
+#         data: dict = decode_json(BPS_DATA_FILE)
+#         prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
 
-        if os.path.exists(os.path.join(prefs.active_project, ".blender_pm")):
-            return self.execute(context)
+#         options = data.get("filebrowser_panel_options", [])[:]
+#         options.remove(prefs.active_project)
 
-        return context.window_manager.invoke_props_dialog(self)
+#         data["filebrowser_panel_options"] = options
 
-    def draw(self, context: Context):
-        layout: 'UILayout' = self.layout
+#         encode_json(data, BPS_DATA_FILE)
 
-        layout.label(text="This project is missing important metadata.")
-        layout.label(
-            text="Do you want to continue? (Metadata will be added now)")
+#         prefs.active_project = options[0]
 
-    def execute(self, context: 'Context'):
-        prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
-        project_metadata_file = os.path.join(prefs.active_project, ".blender_pm")
-
-        if not os.path.exists(project_metadata_file):
-            encode_json({"blender_files": {
-                "main_file": "",
-                "other_files": []
-            }, "build_date": time.time()}, project_metadata_file)
-
-        set_file_hidden(project_metadata_file, False)
-
-        data: dict = decode_json(project_metadata_file)
-
-        folders = data.get("displayed_project_folders", [])[:]
-
-        if len(folders) == 0:
-            for f in prefs.project_paths:
-                folders.append({"folder_path": f.path})
-
-        data["displayed_project_folders"] = self.manipulate_folders(
-            context, folders)
-        encode_json(data, project_metadata_file)
-        register_project_folders(prefs.project_paths, prefs.active_project)
-
-        set_file_hidden(project_metadata_file)
-
-        return {'FINISHED'}
-
-    def manipulate_folders(self, context: 'Context', folders: 'list') -> list:
-        return folders
+#         return {'FINISHED'}
 
 
-class SPM_OT_add_panel_project_folder(SPM_OT_panel_folder_base):
-    """Add the current folder path to the project panel."""
-    bl_idname = "superprojectmanager.add_panel_project_folder"
-    bl_label = "Add Folder"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_panel_folder_base(Operator):
+#     """Base operator for panel folder operations"""
+#     bl_idname = "superprojectmanager.panel_folder_base"
+#     bl_label = "Panel Folder Base"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    def manipulate_folders(self, context: Context, folders: list) -> list:
-        folders = folders[:]
+#     def invoke(self, context: Context, event: Event):
+#         prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
 
-        folder_path = os.path.normpath(
-            context.space_data.params.directory.decode("utf-8"))
-        folders.append({"folder_path": folder_path})
+#         if os.path.exists(os.path.join(prefs.active_project, ".blender_pm")):
+#             return self.execute(context)
 
-        paths = []
-        i = 0
-        while i < len(folders):
-            if folders[i].get("folder_path", "") in paths:
-                folders.pop(i)
-                continue
+#         return context.window_manager.invoke_props_dialog(self)
 
-            paths.append(folders[i].get("folder_path", ""))
-            i += 1
+#     def draw(self, context: Context):
+#         layout: 'UILayout' = self.layout
 
-        return folders
+#         layout.label(text="This project is missing important metadata.")
+#         layout.label(
+#             text="Do you want to continue? (Metadata will be added now)")
+
+#     def execute(self, context: 'Context'):
+#         prefs: 'AddonPreferences' = context.preferences.addons[__package__.split(".")[0]].preferences
+#         project_metadata_file = os.path.join(prefs.active_project, ".blender_pm")
+
+#         if not os.path.exists(project_metadata_file):
+#             encode_json({"blender_files": {
+#                 "main_file": "",
+#                 "other_files": []
+#             }, "build_date": time.time()}, project_metadata_file)
+
+#         set_file_hidden(project_metadata_file, False)
+
+#         data: dict = decode_json(project_metadata_file)
+
+#         folders = data.get("displayed_project_folders", [])[:]
+
+#         if len(folders) == 0:
+#             for f in prefs.project_paths:
+#                 folders.append({"folder_path": f.path})
+
+#         data["displayed_project_folders"] = self.manipulate_folders(
+#             context, folders)
+#         encode_json(data, project_metadata_file)
+#         register_project_folders(prefs.project_paths, prefs.active_project)
+
+#         set_file_hidden(project_metadata_file)
+
+#         return {'FINISHED'}
+
+#     def manipulate_folders(self, context: 'Context', folders: 'list') -> list:
+#         return folders
 
 
-class SPM_OT_remove_panel_project_folder(SPM_OT_panel_folder_base):
-    """Remove a folder from the project panel."""
-    bl_idname = "superprojectmanager.remove_panel_project_folder"
-    bl_label = "remove"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_add_panel_project_folder(SPM_OT_panel_folder_base):
+#     """Add the current folder path to the project panel."""
+#     bl_idname = "superprojectmanager.add_panel_project_folder"
+#     bl_label = "Add Folder"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
+#     def manipulate_folders(self, context: Context, folders: list) -> list:
+#         folders = folders[:]
 
-    def manipulate_folders(self, context: Context, folders: list) -> list:
-        folders = folders[:]
-        folders.pop(self.index)
+#         folder_path = os.path.normpath(
+#             context.space_data.params.directory.decode("utf-8"))
+#         folders.append({"folder_path": folder_path})
 
-        return folders
+#         paths = []
+#         i = 0
+#         while i < len(folders):
+#             if folders[i].get("folder_path", "") in paths:
+#                 folders.pop(i)
+#                 continue
+
+#             paths.append(folders[i].get("folder_path", ""))
+#             i += 1
+
+#         return folders
 
 
-class SPM_OT_move_panel_project_folder(SPM_OT_panel_folder_base):
-    """Rearrange the project panel"""
-    bl_idname = "superprojectmanager.move_panel_project_folder"
-    bl_label = "Move"
-    bl_options = {'REGISTER', 'UNDO'}
+# class SPM_OT_remove_panel_project_folder(SPM_OT_panel_folder_base):
+#     """Remove a folder from the project panel."""
+#     bl_idname = "superprojectmanager.remove_panel_project_folder"
+#     bl_label = "remove"
+#     bl_options = {'REGISTER', 'UNDO'}
 
-    index: IntProperty()
-    direction: IntProperty()
+#     index: IntProperty()
 
-    def manipulate_folders(self, context: Context, folders: list) -> list:
-        folders = folders[:]
+#     def manipulate_folders(self, context: Context, folders: list) -> list:
+#         folders = folders[:]
+#         folders.pop(self.index)
 
-        f = folders.pop(self.index)
-        folders.insert(self.index + self.direction, f)
+#         return folders
 
-        return folders
+
+# class SPM_OT_move_panel_project_folder(SPM_OT_panel_folder_base):
+#     """Rearrange the project panel"""
+#     bl_idname = "superprojectmanager.move_panel_project_folder"
+#     bl_label = "Move"
+#     bl_options = {'REGISTER', 'UNDO'}
+
+#     index: IntProperty()
+#     direction: IntProperty()
+
+#     def manipulate_folders(self, context: Context, folders: list) -> list:
+#         folders = folders[:]
+
+#         f = folders.pop(self.index)
+#         folders.insert(self.index + self.direction, f)
+
+#         return folders
 
 
 classes = (
     SPM_OT_add_folder,
     SPM_OT_remove_folder,
     SPM_OT_Build_Project,
-    SPM_OT_add_project,
-    SPM_OT_finish_project,
-    SPM_OT_redefine_project_path,
-    SPM_OT_open_blender_file,
-    SPM_OT_define_blend_file_location,
-    SPM_OT_rearrange_up,
-    SPM_OT_rearrange_down,
-    SPM_OT_rearrange_to_top,
-    SPM_OT_rearrange_to_bottom,
-    SPM_OT_add_label,
-    SPM_OT_remove_label,
-    SPM_OT_change_label,
+    # SPM_OT_add_project,
+    # SPM_OT_finish_project,
+    # SPM_OT_redefine_project_path,
+    # SPM_OT_open_blender_file,
+    # SPM_OT_define_blend_file_location,
+    # SPM_OT_rearrange_up,
+    # SPM_OT_rearrange_down,
+    # SPM_OT_rearrange_to_top,
+    # SPM_OT_rearrange_to_bottom,
+    # SPM_OT_add_label,
+    # SPM_OT_remove_label,
+    # SPM_OT_change_label,
     SPM_OT_add_structure_set,
     SPM_OT_remove_structure_set,
-    SPM_OT_add_panel_project,
-    SPM_OT_remove_panel_project,
-    SPM_OT_add_panel_project_folder,
-    SPM_OT_remove_panel_project_folder,
-    SPM_OT_move_panel_project_folder,
+    # SPM_OT_add_panel_project,
+    # SPM_OT_remove_panel_project,
+    # SPM_OT_add_panel_project_folder,
+    # SPM_OT_remove_panel_project_folder,
+    # SPM_OT_move_panel_project_folder,
 )
 
 

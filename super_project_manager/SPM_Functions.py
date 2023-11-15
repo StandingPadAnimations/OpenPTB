@@ -172,6 +172,7 @@ def register_properties():
     
     scene_prop.project_name = StringProperty(
         name="Project Name",
+        description="Name of the Project Folder",
         subtype="NONE",
         default="My_Project"
     )
@@ -194,11 +195,13 @@ def register_properties():
 
     scene_prop.open_directory = BoolProperty(
         name="Open Directory",
+        description="Open the Project Directory after the Project is created",
         default=True
     )
 
     scene_prop.add_new_project = BoolProperty(
         name="New unfinished project",
+        description="Add a new unfinished project",
         default=False
     )
 
@@ -215,6 +218,7 @@ def register_properties():
 
     scene_prop.save_file_with_new_name = BoolProperty(
         name="Save Blender File with another name",
+        description="Save Blender File with another name",
     )
 
     scene_prop.save_blender_file_versioned = BoolProperty(
@@ -223,24 +227,31 @@ def register_properties():
     )
 
     scene_prop.save_file_name = StringProperty(
-        name="Save File Name",default="My Blend"
+        name="Save File Name",
+        description="Name of the Blender File",
+        default="My Blend"
     )
 
     scene_prop.remap_relative = BoolProperty(
         name="Remap Relative",
+        description="Remap the Relative Paths",
         default=True
     )
 
     scene_prop.compress_save = BoolProperty(
-        name="Compress Save"
+        name="Compress Save",
+        description="Compress the File on Save.\nThis will make the File smaller, but it will take longer to save.\nThis will not compress images.",
+        default=True
     )
 
     scene_prop.set_render_output = BoolProperty(
-        name="Set the Render Output"
+        name="Set the Render Output",
+        description="Set the Render Output to the Project Folder",
     )
 
     scene_prop.project_rearrange_mode = BoolProperty(
-        name="Switch to Rearrange Mode"
+        name="Switch to Rearrange Mode",
+        description="Switch to Rearrange Mode",
     )
 
 def register_automatic_folders(folders, folderset="Default Folder Set"):
