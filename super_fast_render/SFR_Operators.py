@@ -13,7 +13,7 @@ from ..pidgeon_tool_bag.PTB_Functions import render_image, format_time, get_subf
 class SFR_OT_Benchmark_Frame(Operator):
     bl_idname = "superfastrender.benchmark_frame"
     bl_label = "Frame Benchmark"
-    bl_description = ""
+    bl_description = "Starts the benchmarking process for a single frame"
     
     # Dictionary to manage bounce data
     bounce_data = {
@@ -198,7 +198,7 @@ class SFR_OT_OpenFolderBenchmarked(Operator):
 class SFR_OT_Preset_Preview(Operator):
     bl_idname = "superfastrender.preset_preview"
     bl_label = "Preview Preset"
-    bl_description = ""
+    bl_description = "Fastest possible render settings - for previewing."
 
     def execute(self, context: Context):
         cycles = bpy.context.scene.cycles
@@ -260,7 +260,7 @@ class SFR_OT_Preset_Preview(Operator):
 class SFR_OT_Preset_Fast(Operator):
     bl_idname = "superfastrender.preset_fast"
     bl_label = "Fast Preset"
-    bl_description = ""
+    bl_description = "Fast render settings - for quick renders."
 
     def execute(self, context: Context):
         cycles = bpy.context.scene.cycles
@@ -322,7 +322,7 @@ class SFR_OT_Preset_Fast(Operator):
 class SFR_OT_Preset_Default(Operator):
     bl_idname = "superfastrender.preset_default"
     bl_label = "Default Preset"
-    bl_description = ""
+    bl_description = "Default blender render settings. No optimizations."
 
     def execute(self, context: Context):
         cycles = bpy.context.scene.cycles
@@ -388,7 +388,7 @@ class SFR_OT_Preset_Default(Operator):
 class SFR_OT_Preset_High(Operator):
     bl_idname = "superfastrender.preset_high"
     bl_label = "High Preset"
-    bl_description = ""
+    bl_description = "High quality render settings - for final renders."
 
     def execute(self, context: Context):
         cycles = bpy.context.scene.cycles
@@ -445,7 +445,7 @@ class SFR_OT_Preset_High(Operator):
 class SFR_OT_Preset_Ultra(Operator):
     bl_idname = "superfastrender.preset_ultra"
     bl_label = "Ultra Preset"
-    bl_description = ""
+    bl_description = "Best possible render settings - for fun renders."
 
     def execute(self, context: Context):
         cycles = bpy.context.scene.cycles
@@ -502,7 +502,7 @@ class SFR_OT_Preset_Ultra(Operator):
 class SFR_OT_Texture_Optimization(Operator):
     bl_idname = "superfastrender.texture_optimization"
     bl_label = "Texture Optimization"
-    bl_description = ""
+    bl_description = "Optimize textures for lower memory usage."
 
     def execute(self, context: Context):
         bpy.ops.file.pack_all()
@@ -564,7 +564,7 @@ class SFR_OT_Texture_Optimization(Operator):
 class SFR_OT_Mesh_Optimization_Frame(Operator):
     bl_idname = "superfastrender.mesh_optimization_frame"
     bl_label = "Frame Optimization"
-    bl_description = ""
+    bl_description = "Optimizes the mesh for selected objects. (uses modifiers)"
 
     def execute(self, context: Context):
         # remove the optimization first
@@ -638,7 +638,7 @@ class SFR_OT_Mesh_Optimization_Frame(Operator):
 class SFR_OT_Mesh_Optimization_Remove(Operator):
     bl_idname = "superfastrender.mesh_optimization_remove"
     bl_label = "Remove Optimization"
-    bl_description = ""
+    bl_description = "Removes the mesh optimization for the selected objects."
 
     def execute(self, context: Context):
         print(bcolors.OKGREEN + "Removing Mesh Optimization..." + bcolors.ENDC)
@@ -670,7 +670,7 @@ class SFR_OT_Mesh_Optimization_Remove(Operator):
 class SFR_OT_Estimator_Time(Operator):
     bl_idname = "superfastrender.estimator_time"
     bl_label = "Estimate Render Time"
-    bl_description = ""
+    bl_description = "Estimates the render time for the animation"
 
 
     def execute(self, context: Context):
