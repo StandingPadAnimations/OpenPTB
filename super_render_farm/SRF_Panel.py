@@ -10,7 +10,7 @@ from bpy.types import (
 )
 
 class SRF_PT_General_Panel(PTB_PT_Panel, Panel):
-    bl_label = "Super Render Farm"
+    bl_label = "Super Render Farm (coming soon)"
     bl_parent_id = "PTB_PT_PTB_Panel"
 
     def draw_header(self, context: Context):
