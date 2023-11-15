@@ -75,9 +75,6 @@ class SPM_PT_General_Panel(PTB_PT_Panel, Panel):
                 colbutton.operator("pidgeontoolbag.open_addon_prefs", text="Open Preferences", icon="PREFERENCES")
 
             col.separator()
-            col_grayed = col.column()
-            col_grayed.enabled = False
-            col_grayed.prop(context.scene, "add_new_project", toggle=True, text="Add project to unifished projects list")
             col.prop(context.scene, "open_directory", toggle=True)
             col.separator()
             colaction = col.column()
