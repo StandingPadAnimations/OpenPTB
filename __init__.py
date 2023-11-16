@@ -42,12 +42,12 @@ from bpy.props import (
 
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
-    "author": "Kevin Lorengel",
-    "version": (0, 8, 2),
+    "author": "Kevin Lorengel, Crafto Hohenvels",
+    "version": (1, 0, 0),
     "blender": (4, 0, 0),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
-    "warning": "This addon version is still in development, and may not work as expected. It works only in Blender 4.0 and above.",
+    "warning": "",
     "wiki_url": "https://discord.gg/cnFdGQP",
     "endpoint_url": "",
     "tracker_url": "",

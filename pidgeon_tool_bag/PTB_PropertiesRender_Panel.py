@@ -40,7 +40,7 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag:")
-        row.label(text="v0.8.2")
+        row.label(text="v1.0.0")
 
         row = box.row()
         row.label(text="Super Project Manager:")
