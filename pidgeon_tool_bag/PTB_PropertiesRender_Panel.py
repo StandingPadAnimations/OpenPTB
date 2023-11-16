@@ -44,15 +44,15 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Super Project Manager:")
-        row.label(text="v1.4.0")
+        row.label(text="v1.5.0")
 
         row = box.row()
         row.label(text="Super Fast Render:")
-        row.label(text="v3.5.0")
+        row.label(text="v4.0.0")
 
         row = box.row()
         row.label(text="Super Advanced Camera:")
-        row.label(text="v1.2.0")
+        row.label(text="v2.0.0")
 
         # row = box.row()
         # row.label(text="Super Real Sound:")
@@ -60,11 +60,11 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Super Image Denoiser:")
-        row.label(text="v4.6.0")
+        row.label(text="v5.0.0")
 
         row = box.row()
         row.label(text="Super Resolution Render:")
-        row.label(text="v1.4.0")
+        row.label(text="v2.0.0")
 
         row = box.row()
         row.label(text="Super Render Farm:")
