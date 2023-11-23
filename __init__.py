@@ -11,6 +11,7 @@ from .super_fast_render import SFR_init
 from .super_advanced_camera import SAC_init, SAC_Functions
 from .super_real_sound import SRS_init
 from .super_image_denoiser import SID_init
+from .super_image_upscaler import SIU_init
 from .super_res_render import SRR_init
 from .super_render_farm import SRF_init
 from .super_easy_analytics import SEA_init
@@ -43,7 +44,7 @@ from bpy.props import (
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
     "author": "Kevin Lorengel, Crafto Hohenvels",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (4, 0, 0),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
@@ -379,7 +380,7 @@ classes_post = (
 )
 
 classes_all = classes_pre + classes_post
-dev_mode = False
+dev_mode = True
 
 def register():
     for cls in classes_pre:
@@ -395,6 +396,7 @@ def register():
     SRF_init.register_function()
     # IN DEVELOPMENT
     if dev_mode:
+        SIU_init.register_function()
         SRS_init.register_function()
         SEA_init.register_function()
 
@@ -406,6 +408,7 @@ def register():
 def unregister():
     # IN DEVELOPMENT
     if dev_mode:
+        SIU_init.unregister_function()
         SRS_init.unregister_function()
         SEA_init.unregister_function()
     # RELEASED

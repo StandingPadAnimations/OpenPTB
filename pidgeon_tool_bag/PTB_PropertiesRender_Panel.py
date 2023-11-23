@@ -40,7 +40,7 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag:")
-        row.label(text="v1.0.0")
+        row.label(text="v1.1.0")
 
         row = box.row()
         row.label(text="Super Project Manager:")
@@ -61,6 +61,10 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         row = box.row()
         row.label(text="Super Image Denoiser:")
         row.label(text="v5.0.0")
+
+        row = box.row()
+        row.label(text="Super Image Upscaler:")
+        row.label(text="v0.1.0")
 
         row = box.row()
         row.label(text="Super Resolution Render:")
