@@ -208,6 +208,12 @@ def active_effect_update(self, context):
         settings.Effects_Halftone_value = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Halftone_Value"].outputs[0].default_value
         settings.Effects_Halftone_delta = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Halftone_Delta"].outputs[0].default_value
         settings.Effects_Halftone_size = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Halftone_SizeSave"].outputs[0].default_value
+    # HDR
+    elif item.EffectGroup == "SAC_HDR":
+        settings.Effects_HDR_blend = bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Mix"].inputs[0].default_value
+        settings.Effects_HDR_exposure = bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Exposure"].inputs[1].default_value
+        settings.Effects_HDR_sigma = bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Sigma"].inputs[0].default_value
+        settings.Effects_HDR_delta = bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Over"].inputs["Exposure"].default_value
     # Infrared
     elif item.EffectGroup == "SAC_INFRARED":
         settings.Effects_Infrared_Blend = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Infrared_Mix"].inputs[0].default_value

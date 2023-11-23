@@ -520,6 +520,12 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                     col.prop(settings, "Effects_Halftone_value")
                     col.prop(settings, "Effects_Halftone_delta")
                     col.prop(settings, "Effects_Halftone_size")
+                # HDR
+                elif item.EffectGroup == "SAC_HDR":
+                    col.prop(settings, "Effects_HDR_blend")
+                    col.prop(settings, "Effects_HDR_exposure")
+                    col.prop(settings, "Effects_HDR_sigma")
+                    col.prop(settings, "Effects_HDR_delta")
                 # Infrared
                 elif item.EffectGroup == "SAC_INFRARED":
                     col.prop(settings, "Effects_Infrared_Blend")
