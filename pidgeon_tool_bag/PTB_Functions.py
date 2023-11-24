@@ -34,10 +34,10 @@ class bcolors:
 from sys import platform
 if platform == "linux" or platform == "linux2":
     index_url = "https://download.pytorch.org/whl/cpu"
-elif platform == "darwin":
-    index_url = None
 elif platform == "win32":
     index_url = "https://download.pytorch.org/whl/cu118"
+elif platform == "darwin":
+    index_url = None
 
 dependency = namedtuple("dependency", ["module", "package", "name", "index_url", "skip_import"])
 

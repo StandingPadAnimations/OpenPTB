@@ -380,11 +380,14 @@ classes_post = (
 )
 
 classes_all = classes_pre + classes_post
-dev_mode = True
+dev_mode = False
 
 def register():
     for cls in classes_pre:
-        bpy.utils.register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except (RuntimeError, Exception) as e:
+            print(f"Failed to register {cls}: {e}")
 
     # RELEASED
     PTB_init.register_function()
@@ -392,11 +395,11 @@ def register():
     SFR_init.register_function()
     SAC_init.register_function()
     SID_init.register_function()
+    SIU_init.register_function()
     SRR_init.register_function()
     SRF_init.register_function()
     # IN DEVELOPMENT
     if dev_mode:
-        SIU_init.register_function()
         SRS_init.register_function()
         SEA_init.register_function()
 
@@ -408,12 +411,12 @@ def register():
 def unregister():
     # IN DEVELOPMENT
     if dev_mode:
-        SIU_init.unregister_function()
         SRS_init.unregister_function()
         SEA_init.unregister_function()
     # RELEASED
     SRF_init.unregister_function()
     SRR_init.unregister_function()
+    SIU_init.unregister_function()
     SID_init.unregister_function()
     SAC_init.unregister_function()
     SFR_init.unregister_function()

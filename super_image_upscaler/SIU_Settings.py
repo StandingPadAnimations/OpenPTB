@@ -15,6 +15,16 @@ class SIU_Settings(PropertyGroup):
 
     ## General ##
 
+    upscaler_type: EnumProperty(
+        name="Upscaler Type",
+        description="The upscaler that will be used to upscale the images.",
+        items=(
+            ("esrgan", "ESRGAN", "Uses ESRGAN to upscale the images.\nRecommended for most users."),
+            ("stable", "Stable Diffusion", "Uses Stable Diffusion to upscale the images.\nRecommended for users powerful hardware."),
+        ),
+        default="esrgan"
+    )
+
     input_folder: StringProperty(
         name="Input Folder",
         description="The folder where the low resolution images are stored.",

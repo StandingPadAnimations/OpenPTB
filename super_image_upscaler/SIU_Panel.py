@@ -28,63 +28,91 @@ class SIU_PT_General_Panel(PTB_PT_Panel, Panel):
             boxcol_base = boxmain.box()
             boxcol_base.label(text="Dependencies not found. Please install them.", icon="ERROR")
             boxcol_base.operator("pidgeontoolbag.install_dependencies", text="Install Dependencies", icon="FILE_REFRESH")
-
-        boxcol_esrgan = boxmain.box()
-        boxcol_esrgan.enabled = not dependencies.needs_install
         
-        template_boxtitle(settings, boxcol_esrgan, "general", "General Settings", "OPTIONS")
-        if settings.show_general:
-            col = boxcol_esrgan.column(align=False)
-            col.prop(settings, "input_folder", text="Input Folder")
-            col.prop(settings, "output_folder", text="Output Folder")
-            col.separator()
-            row = col.row(align=True)
-            row.scale_y = 1.5
-            row.prop(settings, "device", expand=True)
+        boxcol = boxmain.box()
+        boxrow = boxcol.row(align=True)
+        boxrow.scale_y = 1.5
+        boxrow.prop(settings, "upscaler_type", expand=True)
 
-            col.separator(factor=0.5)
-            coladvanced = col.column(align=False)
-            boxadvanced = coladvanced.box()
-            template_boxtitle(settings, boxadvanced, "advanced", "Advanced Settings", "SYSTEM")
-            if settings.show_advanced:
-                boxoutput = boxadvanced.box()
-                coloutput = boxoutput.column(align=False)
-                coloutput.prop(settings, "output_prefix", text="Output Prefix")
-                coloutput.prop(settings, "output_suffix", text="Output Suffix")
-                coloutput.separator()
-                rowoutput = coloutput.row(align=True)
-                rowoutput.prop(settings, "output_format", expand=True)
-                coloutput.separator()
-                rowoutput = coloutput.row(align=True)
-                rowoutput.active = False
-                rowoutput.label(text="Output Image:")
-                rowoutput.label(text=f"{settings.output_prefix}Image{settings.output_suffix}.{settings.output_format}")
+        if settings.upscaler_type == "esrgan":
 
-                boxmodels = boxadvanced.box()
-                colmodels = boxmodels.column(align=False)
+            boxcol_esrgan = boxmain.box()
+            boxcol_esrgan.enabled = not dependencies.needs_install
+            
+            template_boxtitle(settings, boxcol_esrgan, "general", "General Settings", "OPTIONS")
+            if settings.show_general:
+                col = boxcol_esrgan.column(align=False)
+                col.prop(settings, "input_folder", text="Input Folder")
+                col.prop(settings, "output_folder", text="Output Folder")
+                col.separator()
+                row = col.row(align=True)
+                row.scale_y = 1.5
+                row.prop(settings, "device", expand=True)
 
-                if settings.model_primary == "":
-                    colmodels.label(text="No models found.", icon="ERROR")
-                    colmodels.operator("wm.url_open", text="Download Base Model", icon="URL").url = "https://drive.google.com/drive/u/0/folders/17VYV_SoZZesU6mbxz2dMAIccSSlqLecY"
-                    colmodels.separator()
-                    colmodels.label(text="Recommended models:", icon="INFO")
-                    colmodels.label(text="RRDB_ESRGAN_x4.pth for Primary Model")
-                    colmodels.label(text="RRDB_PSNR_x4.pth for Secondary Model")
-                    colmodels.separator()
-                    colmodels.operator("superimageupscaler.openfoldermodels", text="Model Folder", icon="FILE_FOLDER")
-                else: 
-                    rowmodels = colmodels.row(align=True)
-                    rowmodels.scale_y = 1.5
-                    rowmodels.prop(settings, "model_primary")
-                    rowmodels.operator("superimageupscaler.openfoldermodels", text="", icon="FILE_FOLDER")
-                    rowmodels = colmodels.row(align=True)
-                    rowmodels.scale_y = 1.5
-                    rowmodels.prop(settings, "model_secondary")
-                    rowmodels.operator("superimageupscaler.openfoldermodels", text="", icon="FILE_FOLDER")
-                    colmodels.separator()
-                    colmodels.prop(settings, "model_blend", text="Blend Factor")
-                    colmodels.operator("wm.url_open", text="Download Base Model", icon="URL").url = "https://drive.google.com/drive/u/0/folders/17VYV_SoZZesU6mbxz2dMAIccSSlqLecY"
-        
+                col.separator(factor=0.5)
+                coladvanced = col.column(align=False)
+                boxadvanced = coladvanced.box()
+                template_boxtitle(settings, boxadvanced, "advanced", "Advanced Settings", "SYSTEM")
+                if settings.show_advanced:
+                    boxoutput = boxadvanced.box()
+                    coloutput = boxoutput.column(align=False)
+                    coloutput.prop(settings, "output_prefix", text="Output Prefix")
+                    coloutput.prop(settings, "output_suffix", text="Output Suffix")
+                    coloutput.separator()
+                    rowoutput = coloutput.row(align=True)
+                    rowoutput.prop(settings, "output_format", expand=True)
+                    coloutput.separator()
+                    rowoutput = coloutput.row(align=True)
+                    rowoutput.active = False
+                    rowoutput.label(text="Output Image:")
+                    rowoutput.label(text=f"{settings.output_prefix}Image{settings.output_suffix}.{settings.output_format}")
+
+                    boxmodels = boxadvanced.box()
+                    colmodels = boxmodels.column(align=False)
+
+                    if settings.model_primary == "":
+                        colmodels.label(text="No models found.", icon="ERROR")
+                        colmodels.operator("wm.url_open", text="Download Base Model", icon="URL").url = "https://drive.google.com/drive/u/0/folders/17VYV_SoZZesU6mbxz2dMAIccSSlqLecY"
+                        colmodels.separator()
+                        colmodels.label(text="Recommended models:", icon="INFO")
+                        colmodels.label(text="RRDB_ESRGAN_x4.pth for Primary Model")
+                        colmodels.label(text="RRDB_PSNR_x4.pth for Secondary Model")
+                        colmodels.separator()
+                        colmodels.operator("superimageupscaler.openfoldermodels", text="Model Folder", icon="FILE_FOLDER")
+                    else: 
+                        rowmodels = colmodels.row(align=True)
+                        rowmodels.scale_y = 1.5
+                        rowmodels.prop(settings, "model_primary")
+                        rowmodels.operator("superimageupscaler.openfoldermodels", text="", icon="FILE_FOLDER")
+                        rowmodels = colmodels.row(align=True)
+                        rowmodels.scale_y = 1.5
+                        rowmodels.prop(settings, "model_secondary")
+                        rowmodels.operator("superimageupscaler.openfoldermodels", text="", icon="FILE_FOLDER")
+                        colmodels.separator()
+                        colmodels.prop(settings, "model_blend", text="Blend Factor")
+                        colmodels.operator("wm.url_open", text="Download Base Model", icon="URL").url = "https://drive.google.com/drive/u/0/folders/17VYV_SoZZesU6mbxz2dMAIccSSlqLecY"
+          
+        if settings.upscaler_type == "stable":
+
+            boxcol_stable = boxmain.box()
+            boxcol_stable.enabled = not dependencies.needs_install 
+
+            template_boxtitle(settings, boxcol_stable, "general", "General Settings", "OPTIONS")
+            if settings.show_general:
+                col = boxcol_stable.column(align=False)
+                col.label(text="IN DEVELOPMENT - COMING SOON", icon="ERROR")
+
+
+                col.separator(factor=0.5)
+                coladvanced = col.column(align=False)
+                boxadvanced = coladvanced.box()
+                template_boxtitle(settings, boxadvanced, "advanced", "Advanced Settings", "SYSTEM")
+                if settings.show_advanced:
+                    boxindev = boxadvanced.box()
+                    colindev = boxindev.column(align=False)
+                    colindev.label(text="IN DEVELOPMENT - COMING SOON", icon="ERROR")
+
+
         colactions = colmain.column(align=False)
         boxactions = colactions.box()
         boxactions.scale_y = 1.5
