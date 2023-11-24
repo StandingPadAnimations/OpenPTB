@@ -1,11 +1,15 @@
 import os
-import cv2
 import bpy
 from bpy.types import (
     Operator,
     Context,
 )
 from .SIU_Functions import upscale_image
+
+try:
+    import cv2
+except Exception:
+    pass
 
 #region upscale
 
