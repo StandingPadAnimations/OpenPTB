@@ -3,16 +3,23 @@
 # I modified the code to work with Blender.
 
 import os
-import cv2
 import bpy
 import glob
-import torch
 import functools
 import numpy as np
-import torch.nn as nn
-import torch.nn.functional as F
 from ..pidgeon_tool_bag.PTB_Functions import bcolors
 
+try:
+    import cv2
+except Exception:
+    pass
+
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+except Exception:
+    pass
 
 def make_layer(block, n_layers):
     layers = []
