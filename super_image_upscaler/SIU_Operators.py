@@ -4,7 +4,10 @@ from bpy.types import (
     Operator,
     Context,
 )
-from .SIU_Functions import upscale_image
+try:
+    from .SIU_Functions import upscale_image
+except Exception:
+    pass
 
 try:
     import cv2
