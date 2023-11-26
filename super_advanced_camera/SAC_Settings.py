@@ -1867,7 +1867,7 @@ class SAC_Settings(PropertyGroup):
         
     Effects_HDR_blend: FloatProperty(
         name="Blend",
-        description="Adjusts the blend of the HDR effect",
+        description="The strength of the HDR effect",
         default=1,
         max=1,
         min=0,
@@ -1890,7 +1890,7 @@ class SAC_Settings(PropertyGroup):
 
     Effects_HDR_sigma: FloatProperty(
         name="Sigma",
-        description="Adjusts the sigma of the HDR effect",
+        description="The mix factor of the exposures of the HDR effect",
         default=0.1,
         max=1,
         min=0.01,
@@ -1914,7 +1914,7 @@ class SAC_Settings(PropertyGroup):
 
     Effects_HDR_delta: FloatProperty(
         name="Delta",
-        description="Adjusts the delta of the HDR effect",
+        description="The range of the exposures of the HDR effect",
         default=2,
         max=10,
         min=0.01,
@@ -1937,7 +1937,7 @@ class SAC_Settings(PropertyGroup):
 
     Effects_HDR_exposure: FloatProperty(
         name="Exposure",
-        description="Adjusts the exposure of the HDR effect",
+        description="The additional exposure of the HDR effect",
         default=-1.75,
         max=100,
         soft_max=10,
