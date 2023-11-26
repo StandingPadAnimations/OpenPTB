@@ -8,4 +8,5 @@ test_output.png
 python_modules
 
 # Release files
-PidgeonToolBag.zip
+*.zip
+*.pth

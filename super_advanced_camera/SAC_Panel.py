@@ -230,124 +230,124 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
         boxcol = boxmain.column()
         template_boxtitle(settings, boxcol, "colorgrading", "Color Grading", "MOD_HUE_SATURATION")
         if settings.show_colorgrading:
-            try:
-                bpy.context.scene.node_tree.nodes
-            except:
-                bpy.context.scene.use_nodes = True
             found = False
-            for node in bpy.context.scene.node_tree.nodes:
-                if node.name.startswith("Super Advanced Camera"):
-                    found = True
-                    break
-            if not found:
-                boxcol.label(text="You need to initialize SAC to use this feature!", icon="ERROR")
-                boxcol.operator("superadvancedcamera.superadvancedcamerainit", text="Initialize Super Advanced Camera", icon="SHADERFX")
+            if not context.scene.use_nodes:
+                boxcol.label(text="You need to enable the Compositor to use this feature!", icon="ERROR")
+                boxcol.prop(context.scene, "use_nodes", text="Enable Compositor?", toggle=True)
             else:
+                for node in bpy.context.scene.node_tree.nodes:
+                    if node.name.startswith("Super Advanced Camera"):
+                        found = True
+                        break
+                if not found:
+                    boxcol.label(text="You need to initialize SAC to use this feature!", icon="ERROR")
+                    boxcol.operator("superadvancedcamera.superadvancedcamerainit", text="Initialize Super Advanced Camera", icon="SHADERFX")
+                else:
 
-                rgb_curves_node = bpy.data.node_groups[".SAC Curves"].nodes["SAC Colorgrade_Curves_RGB"]
-                hsv_curves_node = bpy.data.node_groups[".SAC Curves"].nodes["SAC Colorgrade_Curves_HSV"]
-                color_wheel_node_lift = bpy.data.node_groups[".SAC Colorwheel"].nodes["SAC Colorgrade_Colorwheel_Shadows"]
-                color_wheel_node_gamma = bpy.data.node_groups[".SAC Colorwheel"].nodes["SAC Colorgrade_Colorwheel_Midtones"]
-                color_wheel_node_gain = bpy.data.node_groups[".SAC Colorwheel"].nodes["SAC Colorgrade_Colorwheel_Highlights"]
+                    rgb_curves_node = bpy.data.node_groups[".SAC Curves"].nodes["SAC Colorgrade_Curves_RGB"]
+                    hsv_curves_node = bpy.data.node_groups[".SAC Curves"].nodes["SAC Colorgrade_Curves_HSV"]
+                    color_wheel_node_lift = bpy.data.node_groups[".SAC Colorwheel"].nodes["SAC Colorgrade_Colorwheel_Shadows"]
+                    color_wheel_node_gamma = bpy.data.node_groups[".SAC Colorwheel"].nodes["SAC Colorgrade_Colorwheel_Midtones"]
+                    color_wheel_node_gain = bpy.data.node_groups[".SAC Colorwheel"].nodes["SAC Colorgrade_Colorwheel_Highlights"]
 
-                boxbox = boxcol.box()
-                template_boxtitle(settings, boxbox, "color", "Color", "COLOR")
-                if settings.show_color:
-                    col = boxbox.column()
-                    row = col.row(align=True)
-                    row.prop(settings, "Colorgrade_Color_WhiteLevel")
-                    col.prop(settings, "Colorgrade_Color_Temperature")
-                    col.prop(settings, "Colorgrade_Color_Tint")
-                    col.prop(settings, "Colorgrade_Color_Saturation")
-                    col.prop(settings, "Colorgrade_Color_Hue")
+                    boxbox = boxcol.box()
+                    template_boxtitle(settings, boxbox, "color", "Color", "COLOR")
+                    if settings.show_color:
+                        col = boxbox.column()
+                        row = col.row(align=True)
+                        row.prop(settings, "Colorgrade_Color_WhiteLevel")
+                        col.prop(settings, "Colorgrade_Color_Temperature")
+                        col.prop(settings, "Colorgrade_Color_Tint")
+                        col.prop(settings, "Colorgrade_Color_Saturation")
+                        col.prop(settings, "Colorgrade_Color_Hue")
 
-                boxbox = boxcol.box()
-                template_boxtitle(settings, boxbox, "light", "Light", "OUTLINER_OB_LIGHT")
-                if settings.show_light:
-                    col = boxbox.column()
-                    col.prop(settings, "Colorgrade_Light_Exposure")
-                    col.prop(settings, "Colorgrade_Light_Contrast")
-                    col.prop(settings, "Colorgrade_Light_Highlights")
-                    col.prop(settings, "Colorgrade_Light_Shadows")
-                    col.prop(settings, "Colorgrade_Light_Whites")
-                    col.prop(settings, "Colorgrade_Light_Darks")
+                    boxbox = boxcol.box()
+                    template_boxtitle(settings, boxbox, "light", "Light", "OUTLINER_OB_LIGHT")
+                    if settings.show_light:
+                        col = boxbox.column()
+                        col.prop(settings, "Colorgrade_Light_Exposure")
+                        col.prop(settings, "Colorgrade_Light_Contrast")
+                        col.prop(settings, "Colorgrade_Light_Highlights")
+                        col.prop(settings, "Colorgrade_Light_Shadows")
+                        col.prop(settings, "Colorgrade_Light_Whites")
+                        col.prop(settings, "Colorgrade_Light_Darks")
 
-                boxbox = boxcol.box()
-                template_boxtitle(settings, boxbox, "presets", "Presets", "PRESET")
-                if settings.show_presets:
-                    col = boxbox.column()
+                    boxbox = boxcol.box()
+                    template_boxtitle(settings, boxbox, "presets", "Presets", "PRESET")
+                    if settings.show_presets:
+                        col = boxbox.column()
 
-                    col.prop(settings, "filter_type")
+                        col.prop(settings, "filter_type")
 
-                    row = col.row(align=True)
-                    left = row.column(align=True)
-                    left.scale_x = 1
-                    left.scale_y = 8
-                    left.operator("superadvancedcamera.previous_filter", text="", icon="TRIA_LEFT")
-                    center = row.column()
-                    center.template_icon_view(context.scene, "new_filter_type", show_labels=True, scale=8.0, scale_popup=4.0)
-                    right = row.column(align=True)
-                    right.scale_x = 1
-                    right.scale_y = 8
-                    right.operator("superadvancedcamera.next_filter", text="", icon="TRIA_RIGHT")
-                    center_column = col.row(align=True)
-                    center_column.label(text="Filter Name:")
-                    center_column.label(text=f"{scene.new_filter_type}")
+                        row = col.row(align=True)
+                        left = row.column(align=True)
+                        left.scale_x = 1
+                        left.scale_y = 8
+                        left.operator("superadvancedcamera.previous_filter", text="", icon="TRIA_LEFT")
+                        center = row.column()
+                        center.template_icon_view(context.scene, "new_filter_type", show_labels=True, scale=8.0, scale_popup=4.0)
+                        right = row.column(align=True)
+                        right.scale_x = 1
+                        right.scale_y = 8
+                        right.operator("superadvancedcamera.next_filter", text="", icon="TRIA_RIGHT")
+                        center_column = col.row(align=True)
+                        center_column.label(text="Filter Name:")
+                        center_column.label(text=f"{scene.new_filter_type}")
 
-                    col.operator("superadvancedcamera.apply_filter", icon="BRUSHES_ALL")
-                    col.prop(settings, "Colorgrade_Filter_Mix")
-                    col.prop(settings, "Colorgrade_Filter_Extension")
-                    col.separator()
-                    col.prop(settings, "Colorgrade_Presets_Sharpen")
-                    col.prop(settings, "Colorgrade_Presets_Vibrance")
-                    col.prop(settings, "Colorgrade_Presets_Saturation")
-                    row = col.row(align=True)
-                    row.prop(settings, "Colorgrade_Presets_HighlightTint")
-                    row = col.row(align=True)
-                    row.prop(settings, "Colorgrade_Presets_ShadowTint")
+                        col.operator("superadvancedcamera.apply_filter", icon="BRUSHES_ALL")
+                        col.prop(settings, "Colorgrade_Filter_Mix")
+                        col.prop(settings, "Colorgrade_Filter_Extension")
+                        col.separator()
+                        col.prop(settings, "Colorgrade_Presets_Sharpen")
+                        col.prop(settings, "Colorgrade_Presets_Vibrance")
+                        col.prop(settings, "Colorgrade_Presets_Saturation")
+                        row = col.row(align=True)
+                        row.prop(settings, "Colorgrade_Presets_HighlightTint")
+                        row = col.row(align=True)
+                        row.prop(settings, "Colorgrade_Presets_ShadowTint")
 
-                boxbox = boxcol.box()
-                template_boxtitle(settings, boxbox, "curves", "Curves", "FCURVE")
-                if settings.show_curves:
-                    col = boxbox.column()
+                    boxbox = boxcol.box()
+                    template_boxtitle(settings, boxbox, "curves", "Curves", "FCURVE")
+                    if settings.show_curves:
+                        col = boxbox.column()
 
-                    box = col.box()
-                    boxcol_curves = box.column()
-                    boxcol_curves.label(text="RGB Curves", icon="MOD_INSTANCE")
-                    boxcol_curves.template_curve_mapping(rgb_curves_node, "mapping", type='COLOR')
-                    boxcol_curves.prop(settings, "Colorgrade_Curves_RGB_Intensity")
+                        box = col.box()
+                        boxcol_curves = box.column()
+                        boxcol_curves.label(text="RGB Curves", icon="MOD_INSTANCE")
+                        boxcol_curves.template_curve_mapping(rgb_curves_node, "mapping", type='COLOR')
+                        boxcol_curves.prop(settings, "Colorgrade_Curves_RGB_Intensity")
 
-                    box = col.box()
-                    boxcol_curves = box.column()
-                    boxcol_curves.label(text="HSV Curves", icon="MOD_OCEAN")
-                    boxcol_curves.template_curve_mapping(hsv_curves_node, "mapping", type='HUE')
-                    boxcol_curves.prop(settings, "Colorgrade_Curves_HSV_Intensity")
+                        box = col.box()
+                        boxcol_curves = box.column()
+                        boxcol_curves.label(text="HSV Curves", icon="MOD_OCEAN")
+                        boxcol_curves.template_curve_mapping(hsv_curves_node, "mapping", type='HUE')
+                        boxcol_curves.prop(settings, "Colorgrade_Curves_HSV_Intensity")
 
-                boxbox = boxcol.box()
-                template_boxtitle(settings, boxbox, "colorwheels", "Colorwheels", "MESH_CIRCLE")
-                if settings.show_colorwheels:
-                    row = boxbox.row(align=True)
+                    boxbox = boxcol.box()
+                    template_boxtitle(settings, boxbox, "colorwheels", "Colorwheels", "MESH_CIRCLE")
+                    if settings.show_colorwheels:
+                        row = boxbox.row(align=True)
 
-                    box_1 = row.box()
-                    col_1 = box_1.column()
-                    col_1.label(text="Shadows", icon="PMARKER")
-                    col_1.template_color_picker(color_wheel_node_lift, "lift")
-                    col_1.prop(settings, "Colorgrade_Colorwheel_Shadows_Brightness", text="Brightness")
-                    col_1.prop(settings, "Colorgrade_Colorwheel_Shadows_Intensity", text="Intensity")
+                        box_1 = row.box()
+                        col_1 = box_1.column()
+                        col_1.label(text="Shadows", icon="PMARKER")
+                        col_1.template_color_picker(color_wheel_node_lift, "lift")
+                        col_1.prop(settings, "Colorgrade_Colorwheel_Shadows_Brightness", text="Brightness")
+                        col_1.prop(settings, "Colorgrade_Colorwheel_Shadows_Intensity", text="Intensity")
 
-                    box_2 = row.box()
-                    col_2 = box_2.column()
-                    col_2.label(text="Midtones", icon="PMARKER_SEL")
-                    col_2.template_color_picker(color_wheel_node_gamma, "gamma")
-                    col_2.prop(settings, "Colorgrade_Colorwheel_Midtones_Brightness", text="Brightness")
-                    col_2.prop(settings, "Colorgrade_Colorwheel_Midtones_Intensity", text="Intensity")
+                        box_2 = row.box()
+                        col_2 = box_2.column()
+                        col_2.label(text="Midtones", icon="PMARKER_SEL")
+                        col_2.template_color_picker(color_wheel_node_gamma, "gamma")
+                        col_2.prop(settings, "Colorgrade_Colorwheel_Midtones_Brightness", text="Brightness")
+                        col_2.prop(settings, "Colorgrade_Colorwheel_Midtones_Intensity", text="Intensity")
 
-                    box_3 = row.box()
-                    col_3 = box_3.column()
-                    col_3.label(text="Highlights", icon="PMARKER_ACT")
-                    col_3.template_color_picker(color_wheel_node_gain, "gain")
-                    col_3.prop(settings, "Colorgrade_Colorwheel_Highlights_Brightness", text="Brightness")
-                    col_3.prop(settings, "Colorgrade_Colorwheel_Highlights_Intensity", text="Intensity")
+                        box_3 = row.box()
+                        col_3 = box_3.column()
+                        col_3.label(text="Highlights", icon="PMARKER_ACT")
+                        col_3.template_color_picker(color_wheel_node_gain, "gain")
+                        col_3.prop(settings, "Colorgrade_Colorwheel_Highlights_Brightness", text="Brightness")
+                        col_3.prop(settings, "Colorgrade_Colorwheel_Highlights_Intensity", text="Intensity")
 
         boxmain = colmain.box()
         boxcol = boxmain.column()
@@ -355,227 +355,231 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
         if settings.show_effects:
             
             found = False
-            for node in bpy.context.scene.node_tree.nodes:
-                if node.name.startswith("Super Advanced Camera"):
-                    found = True
-                    break
-            if not found:
-                boxcol.label(text="You need to initialize SAC to use this feature!", icon="ERROR")
-                boxcol.operator("superadvancedcamera.superadvancedcamerainit", text="Initialize Super Advanced Camera", icon="SHADERFX")
+            if not context.scene.use_nodes:
+                boxcol.label(text="You need to enable the Compositor to use this feature!", icon="ERROR")
+                boxcol.prop(context.scene, "use_nodes", text="Enable Compositor?", toggle=True)
             else:
+                for node in bpy.context.scene.node_tree.nodes:
+                    if node.name.startswith("Super Advanced Camera"):
+                        found = True
+                        break
+                if not found:
+                    boxcol.label(text="You need to initialize SAC to use this feature!", icon="ERROR")
+                    boxcol.operator("superadvancedcamera.superadvancedcamerainit", text="Initialize Super Advanced Camera", icon="SHADERFX")
+                else:
 
-                col = boxcol.column(align=True)
-                row = col.row(align=True)
-                left = row.column(align=True)
-                left.scale_x = 1
-                left.scale_y = 8
-                left.operator("superadvancedcamera.previous_effect", text="", icon="TRIA_LEFT")
-                center = row.column()
-                center.template_icon_view(context.scene, "new_effect_type", show_labels=True, scale=8.0, scale_popup=4.0)
-                right = row.column(align=True)
-                right.scale_x = 1
-                right.scale_y = 8
-                right.operator("superadvancedcamera.next_effect", text="", icon="TRIA_RIGHT")
-
-                row = col.row()
-                row.template_list("SAC_UL_List", "", scene, "sac_effect_list", scene, "sac_effect_list_index")
-
-                col = row.column(align=True)
-                col.scale_x = 1  # Set a fixed width
-                col.operator("superadvancedcamera.add_effect", text="", icon='ADD')
-                col.operator("superadvancedcamera.remove_effect", text="", icon='REMOVE')
-                col.separator()
-                col.operator("superadvancedcamera.move_effect_up", text="", icon='TRIA_UP')
-                col.operator("superadvancedcamera.move_effect_down", text="", icon='TRIA_DOWN')
-
-                index = context.scene.sac_effect_list_index
-                item = context.scene.sac_effect_list[index] if context.scene.sac_effect_list else None
-
-                boxeffectproperties = boxcol.box()
-                col = boxeffectproperties.column()
-
-                if item is None:
-                    col.label(text="No effect selected.")
-                    col.active = False
-                    return
-
-                boxeffectproperties.active = not item.mute
-
-                node_group_name = f".{item.EffectGroup}_{item.ID}"
-
-                col.label(text=f"Settings for: {item.name}.")
-                # Bokeh
-                if item.EffectGroup == "SAC_BOKEH":
-                    col.label(text="This effect is not viewport compatible.", icon="ERROR")
-                    col.prop(settings, "Effects_Bokeh_MaxSize")
-                    col.prop(settings, "Effects_Bokeh_Offset")
-                    col.prop(settings, "Effects_Bokeh_Range")
-                    col.separator()
-                    col.label(text="Bokeh Type")
-                    row_bokeh_type = col.row(align=True)
-                    row_bokeh_type.prop(settings, "Effects_Bokeh_Type", expand=True)
-                    col.separator(factor=0.5)
-
-                    if settings.Effects_Bokeh_Type == "CAMERA":
-                        row = col.row(align=True)
-                        left = row.column(align=True)
-                        left.scale_x = 1
-                        left.scale_y = 8
-                        left.operator("superadvancedcamera.previous_effect_bokeh", text="", icon="TRIA_LEFT")
-                        center = row.column()
-                        center.template_icon_view(context.scene, "new_bokeh_type", show_labels=True, scale=8.0, scale_popup=4.0)
-                        right = row.column(align=True)
-                        right.scale_x = 1
-                        right.scale_y = 8
-                        right.operator("superadvancedcamera.next_effect_bokeh", text="", icon="TRIA_RIGHT")
-
-                        bokeh_type = context.scene.new_bokeh_type.split("_")
-                        col_bokeh_description = col.column(align=True)
-                        col_bokeh_description.active = False
-
-                        row_bokeh_description = col_bokeh_description.row(align=True)
-                        row_bokeh_description.label(text="Manufacturer:")
-                        row_bokeh_description.label(text=bokeh_type[0])
-
-                        row_bokeh_description = col_bokeh_description.row(align=True)
-                        row_bokeh_description.label(text="Model:")
-                        row_bokeh_description.label(text=f"{bokeh_type[1]} - {bokeh_type[3]} - {bokeh_type[2]}")
-
-                        row_bokeh_description = col_bokeh_description.row(align=True)
-                        row_bokeh_description.label(text="Aperture:")
-                        row_bokeh_description.label(text=bokeh_type[4])
-
-                        col_bokeh_description.label(text="Special thanks to Prof. Dr. Matt Gunn for the Bokeh textures.")
-                        col.prop(settings, "Effects_Bokeh_Rotation")
-                        col.separator()
-                        col.operator("superadvancedcamera.apply_effect_bokeh", icon="SEQ_CHROMA_SCOPE")
-
-                    elif settings.Effects_Bokeh_Type == "CUSTOM":
-                        bokeh_image = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Bokeh_Custom_Image"]
-                        col.template_ID_preview(bokeh_image, "image", open="image.open")
-                        col.prop(settings, "Effects_Bokeh_Rotation")
-
-                    elif settings.Effects_Bokeh_Type == "PROCEDURAL":
-                        col.prop(settings, "Effects_Bokeh_Procedural_Flaps")
-                        col.prop(settings, "Effects_Bokeh_Procedural_Angle")
-                        col.prop(settings, "Effects_Bokeh_Procedural_Rounding")
-                        col.prop(settings, "Effects_Bokeh_Procedural_Catadioptric")
-                        col.prop(settings, "Effects_Bokeh_Procedural_Shift")
-                # Chromatic Aberration
-                elif item.EffectGroup == "SAC_CHROMATICABERRATION":
-                    col.prop(settings, "Effects_ChromaticAberration_Amount")
-                # Duotone
-                elif item.EffectGroup == "SAC_DUOTONE":
-                    row = col.row(align=True)
-                    row.prop(settings, "Effects_Duotone_Color1")
-                    row = col.row(align=True)
-                    row.prop(settings, "Effects_Duotone_Color2")
-                    col.prop(settings, "Effects_Duotone_Blend")
-                # Emboss
-                elif item.EffectGroup == "SAC_EMBOSS":
-                    col.prop(settings, "Effects_Emboss_Strength")
-                # Film Grain
-                elif item.EffectGroup == "SAC_FILMGRAIN":
-                    col.prop(settings, "Filmgrain_strength")
-                    col.prop(settings, "Filmgrain_dustproportion")
-                    col.prop(settings, "Filmgrain_size")
-                # Fish Eye
-                elif item.EffectGroup == "SAC_FISHEYE":
-                    col.prop(settings, "Effects_Fisheye")
-                # Fog Glow
-                elif item.EffectGroup == "SAC_FOGGLOW":
-                    col.prop(settings, "Effects_FogGlow_Strength")
-                    col.prop(settings, "Effects_FogGlow_Threshold")
-                    col.prop(settings, "Effects_FogGlow_Size")
-                # Ghost
-                elif item.EffectGroup == "SAC_GHOST":
-                    col.prop(settings, "Effects_Ghosts_Strength")
-                    col.prop(settings, "Effects_Ghosts_Threshold")
-                    col.prop(settings, "Effects_Ghosts_Count")
-                    col.prop(settings, "Effects_Ghosts_Distortion")
-                # Gradient Map
-                elif item.EffectGroup == "SAC_GRADIENTMAP":
+                    col = boxcol.column(align=True)
                     row = col.row(align=True)
                     left = row.column(align=True)
                     left.scale_x = 1
                     left.scale_y = 8
-                    left.operator("superadvancedcamera.previous_gradient", text="", icon="TRIA_LEFT")
+                    left.operator("superadvancedcamera.previous_effect", text="", icon="TRIA_LEFT")
                     center = row.column()
-                    center.template_icon_view(context.scene, "new_gradient_type", show_labels=True, scale=8.0, scale_popup=4.0)
+                    center.template_icon_view(context.scene, "new_effect_type", show_labels=True, scale=8.0, scale_popup=4.0)
                     right = row.column(align=True)
                     right.scale_x = 1
                     right.scale_y = 8
-                    right.operator("superadvancedcamera.next_gradient", text="", icon="TRIA_RIGHT")
-                    center_column = col.row(align=True)
-                    center_column.label(text="Gradient Name:")
-                    center_column.label(text=f"{context.scene.new_gradient_type}")
-                    col.operator("superadvancedcamera.apply_gradient", icon="NODE_TEXTURE")
+                    right.operator("superadvancedcamera.next_effect", text="", icon="TRIA_RIGHT")
+
+                    row = col.row()
+                    row.template_list("SAC_UL_List", "", scene, "sac_effect_list", scene, "sac_effect_list_index")
+
+                    col = row.column(align=True)
+                    col.scale_x = 1  # Set a fixed width
+                    col.operator("superadvancedcamera.add_effect", text="", icon='ADD')
+                    col.operator("superadvancedcamera.remove_effect", text="", icon='REMOVE')
                     col.separator()
-                    gradient_map_node = bpy.data.node_groups[node_group_name].nodes["SAC Effects_GradientMap"]
-                    col.template_color_ramp(gradient_map_node, "color_ramp")
-                    col.separator()
-                    col.prop(settings, "Effects_GradientMap_blend")
-                # Halftone
-                elif item.EffectGroup == "SAC_HALFTONE":
-                    col.prop(settings, "Effects_Halftone_value")
-                    col.prop(settings, "Effects_Halftone_delta")
-                    col.prop(settings, "Effects_Halftone_size")
-                # HDR
-                elif item.EffectGroup == "SAC_HDR":
-                    col.prop(settings, "Effects_HDR_blend")
-                    col.prop(settings, "Effects_HDR_exposure")
-                    col.prop(settings, "Effects_HDR_sigma")
-                    col.prop(settings, "Effects_HDR_delta")
-                # Infrared
-                elif item.EffectGroup == "SAC_INFRARED":
-                    col.prop(settings, "Effects_Infrared_Blend")
-                    col.prop(settings, "Effects_Infrared_Offset")
-                # ISO Noise
-                elif item.EffectGroup == "SAC_ISONOISE":
-                    col.prop(settings, "ISO_strength")
-                    col.prop(settings, "ISO_size")
-                # Mosaic
-                elif item.EffectGroup == "SAC_MOSAIC":
-                    col.prop(settings, "Effects_Pixelate_PixelSize")
-                # Negative
-                elif item.EffectGroup == "SAC_NEGATIVE":
-                    col.prop(settings, "Effects_Negative")
-                # Overlay
-                elif item.EffectGroup == "SAC_OVERLAY":
-                    overlay_texture = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Overlay_Texture"]
-                    col.template_ID(overlay_texture, "image", open="image.open")
-                    col.prop(settings, "Effects_Overlay_Strength")
-                # Perspective Shift
-                elif item.EffectGroup == "SAC_PERSPECTIVESHIFT":
-                    col.prop(settings, "Effects_PerspectiveShift_Horizontal")
-                    col.prop(settings, "Effects_PerspectiveShift_Vertical")
-                # Posterize
-                elif item.EffectGroup == "SAC_POSTERIZE":
-                    col.prop(settings, "Effects_Posterize_Steps")
-                # Streaks
-                elif item.EffectGroup == "SAC_STREAKS":
-                    col.prop(settings, "Effects_Streaks_Strength")
-                    col.prop(settings, "Effects_Streaks_Threshold")
-                    col.prop(settings, "Effects_Streaks_Count")
-                    col.prop(settings, "Effects_Streaks_Length")
-                    col.prop(settings, "Effects_Streaks_Fade")
-                    col.prop(settings, "Effects_Streaks_Angle")
-                    col.prop(settings, "Effects_Streaks_Distortion")
-                # Vignette
-                elif item.EffectGroup == "SAC_VIGNETTE":
-                    col.prop(settings, "Effects_Vignette_Intensity")
-                    col.prop(settings, "Effects_Vignette_Roundness")
-                    col.prop(settings, "Effects_Vignette_Feather")
-                    col.prop(settings, "Effects_Vignette_Midpoint")
-                # Warp
-                elif item.EffectGroup == "SAC_WARP":
-                    col.prop(settings, "Effects_Warp")
-                # Error
-                else:
-                    col.label(text="Oops, that's not supposed to happen.")
-                    col.label(text=f"Effect: {item.EffectGroup} was selected.")
-                    col.label(text="Please report this to us.")
-                    col.operator("wm.url_open", text="Our Discord").url = "https://discord.gg/cnFdGQP"
+                    col.operator("superadvancedcamera.move_effect_up", text="", icon='TRIA_UP')
+                    col.operator("superadvancedcamera.move_effect_down", text="", icon='TRIA_DOWN')
+
+                    index = context.scene.sac_effect_list_index
+                    item = context.scene.sac_effect_list[index] if context.scene.sac_effect_list else None
+
+                    boxeffectproperties = boxcol.box()
+                    col = boxeffectproperties.column()
+
+                    if item is None:
+                        col.label(text="No effect selected.")
+                        col.active = False
+                        return
+
+                    boxeffectproperties.active = not item.mute
+
+                    node_group_name = f".{item.EffectGroup}_{item.ID}"
+
+                    col.label(text=f"Settings for: {item.name}.")
+                    # Bokeh
+                    if item.EffectGroup == "SAC_BOKEH":
+                        col.label(text="This effect is not viewport compatible.", icon="ERROR")
+                        col.prop(settings, "Effects_Bokeh_MaxSize")
+                        col.prop(settings, "Effects_Bokeh_Offset")
+                        col.prop(settings, "Effects_Bokeh_Range")
+                        col.separator()
+                        col.label(text="Bokeh Type")
+                        row_bokeh_type = col.row(align=True)
+                        row_bokeh_type.prop(settings, "Effects_Bokeh_Type", expand=True)
+                        col.separator(factor=0.5)
+
+                        if settings.Effects_Bokeh_Type == "CAMERA":
+                            row = col.row(align=True)
+                            left = row.column(align=True)
+                            left.scale_x = 1
+                            left.scale_y = 8
+                            left.operator("superadvancedcamera.previous_effect_bokeh", text="", icon="TRIA_LEFT")
+                            center = row.column()
+                            center.template_icon_view(context.scene, "new_bokeh_type", show_labels=True, scale=8.0, scale_popup=4.0)
+                            right = row.column(align=True)
+                            right.scale_x = 1
+                            right.scale_y = 8
+                            right.operator("superadvancedcamera.next_effect_bokeh", text="", icon="TRIA_RIGHT")
+
+                            bokeh_type = context.scene.new_bokeh_type.split("_")
+                            col_bokeh_description = col.column(align=True)
+                            col_bokeh_description.active = False
+
+                            row_bokeh_description = col_bokeh_description.row(align=True)
+                            row_bokeh_description.label(text="Manufacturer:")
+                            row_bokeh_description.label(text=bokeh_type[0])
+
+                            row_bokeh_description = col_bokeh_description.row(align=True)
+                            row_bokeh_description.label(text="Model:")
+                            row_bokeh_description.label(text=f"{bokeh_type[1]} - {bokeh_type[3]} - {bokeh_type[2]}")
+
+                            row_bokeh_description = col_bokeh_description.row(align=True)
+                            row_bokeh_description.label(text="Aperture:")
+                            row_bokeh_description.label(text=bokeh_type[4])
+
+                            col_bokeh_description.label(text="Special thanks to Prof. Dr. Matt Gunn for the Bokeh textures.")
+                            col.prop(settings, "Effects_Bokeh_Rotation")
+                            col.separator()
+                            col.operator("superadvancedcamera.apply_effect_bokeh", icon="SEQ_CHROMA_SCOPE")
+
+                        elif settings.Effects_Bokeh_Type == "CUSTOM":
+                            bokeh_image = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Bokeh_Custom_Image"]
+                            col.template_ID_preview(bokeh_image, "image", open="image.open")
+                            col.prop(settings, "Effects_Bokeh_Rotation")
+
+                        elif settings.Effects_Bokeh_Type == "PROCEDURAL":
+                            col.prop(settings, "Effects_Bokeh_Procedural_Flaps")
+                            col.prop(settings, "Effects_Bokeh_Procedural_Angle")
+                            col.prop(settings, "Effects_Bokeh_Procedural_Rounding")
+                            col.prop(settings, "Effects_Bokeh_Procedural_Catadioptric")
+                            col.prop(settings, "Effects_Bokeh_Procedural_Shift")
+                    # Chromatic Aberration
+                    elif item.EffectGroup == "SAC_CHROMATICABERRATION":
+                        col.prop(settings, "Effects_ChromaticAberration_Amount")
+                    # Duotone
+                    elif item.EffectGroup == "SAC_DUOTONE":
+                        row = col.row(align=True)
+                        row.prop(settings, "Effects_Duotone_Color1")
+                        row = col.row(align=True)
+                        row.prop(settings, "Effects_Duotone_Color2")
+                        col.prop(settings, "Effects_Duotone_Blend")
+                    # Emboss
+                    elif item.EffectGroup == "SAC_EMBOSS":
+                        col.prop(settings, "Effects_Emboss_Strength")
+                    # Film Grain
+                    elif item.EffectGroup == "SAC_FILMGRAIN":
+                        col.prop(settings, "Filmgrain_strength")
+                        col.prop(settings, "Filmgrain_dustproportion")
+                        col.prop(settings, "Filmgrain_size")
+                    # Fish Eye
+                    elif item.EffectGroup == "SAC_FISHEYE":
+                        col.prop(settings, "Effects_Fisheye")
+                    # Fog Glow
+                    elif item.EffectGroup == "SAC_FOGGLOW":
+                        col.prop(settings, "Effects_FogGlow_Strength")
+                        col.prop(settings, "Effects_FogGlow_Threshold")
+                        col.prop(settings, "Effects_FogGlow_Size")
+                    # Ghost
+                    elif item.EffectGroup == "SAC_GHOST":
+                        col.prop(settings, "Effects_Ghosts_Strength")
+                        col.prop(settings, "Effects_Ghosts_Threshold")
+                        col.prop(settings, "Effects_Ghosts_Count")
+                        col.prop(settings, "Effects_Ghosts_Distortion")
+                    # Gradient Map
+                    elif item.EffectGroup == "SAC_GRADIENTMAP":
+                        row = col.row(align=True)
+                        left = row.column(align=True)
+                        left.scale_x = 1
+                        left.scale_y = 8
+                        left.operator("superadvancedcamera.previous_gradient", text="", icon="TRIA_LEFT")
+                        center = row.column()
+                        center.template_icon_view(context.scene, "new_gradient_type", show_labels=True, scale=8.0, scale_popup=4.0)
+                        right = row.column(align=True)
+                        right.scale_x = 1
+                        right.scale_y = 8
+                        right.operator("superadvancedcamera.next_gradient", text="", icon="TRIA_RIGHT")
+                        center_column = col.row(align=True)
+                        center_column.label(text="Gradient Name:")
+                        center_column.label(text=f"{context.scene.new_gradient_type}")
+                        col.operator("superadvancedcamera.apply_gradient", icon="NODE_TEXTURE")
+                        col.separator()
+                        gradient_map_node = bpy.data.node_groups[node_group_name].nodes["SAC Effects_GradientMap"]
+                        col.template_color_ramp(gradient_map_node, "color_ramp")
+                        col.separator()
+                        col.prop(settings, "Effects_GradientMap_blend")
+                    # Halftone
+                    elif item.EffectGroup == "SAC_HALFTONE":
+                        col.prop(settings, "Effects_Halftone_value")
+                        col.prop(settings, "Effects_Halftone_delta")
+                        col.prop(settings, "Effects_Halftone_size")
+                    # HDR
+                    elif item.EffectGroup == "SAC_HDR":
+                        col.prop(settings, "Effects_HDR_blend")
+                        col.prop(settings, "Effects_HDR_exposure")
+                        col.prop(settings, "Effects_HDR_sigma")
+                        col.prop(settings, "Effects_HDR_delta")
+                    # Infrared
+                    elif item.EffectGroup == "SAC_INFRARED":
+                        col.prop(settings, "Effects_Infrared_Blend")
+                        col.prop(settings, "Effects_Infrared_Offset")
+                    # ISO Noise
+                    elif item.EffectGroup == "SAC_ISONOISE":
+                        col.prop(settings, "ISO_strength")
+                        col.prop(settings, "ISO_size")
+                    # Mosaic
+                    elif item.EffectGroup == "SAC_MOSAIC":
+                        col.prop(settings, "Effects_Pixelate_PixelSize")
+                    # Negative
+                    elif item.EffectGroup == "SAC_NEGATIVE":
+                        col.prop(settings, "Effects_Negative")
+                    # Overlay
+                    elif item.EffectGroup == "SAC_OVERLAY":
+                        overlay_texture = bpy.data.node_groups[node_group_name].nodes["SAC Effects_Overlay_Texture"]
+                        col.template_ID(overlay_texture, "image", open="image.open")
+                        col.prop(settings, "Effects_Overlay_Strength")
+                    # Perspective Shift
+                    elif item.EffectGroup == "SAC_PERSPECTIVESHIFT":
+                        col.prop(settings, "Effects_PerspectiveShift_Horizontal")
+                        col.prop(settings, "Effects_PerspectiveShift_Vertical")
+                    # Posterize
+                    elif item.EffectGroup == "SAC_POSTERIZE":
+                        col.prop(settings, "Effects_Posterize_Steps")
+                    # Streaks
+                    elif item.EffectGroup == "SAC_STREAKS":
+                        col.prop(settings, "Effects_Streaks_Strength")
+                        col.prop(settings, "Effects_Streaks_Threshold")
+                        col.prop(settings, "Effects_Streaks_Count")
+                        col.prop(settings, "Effects_Streaks_Length")
+                        col.prop(settings, "Effects_Streaks_Fade")
+                        col.prop(settings, "Effects_Streaks_Angle")
+                        col.prop(settings, "Effects_Streaks_Distortion")
+                    # Vignette
+                    elif item.EffectGroup == "SAC_VIGNETTE":
+                        col.prop(settings, "Effects_Vignette_Intensity")
+                        col.prop(settings, "Effects_Vignette_Roundness")
+                        col.prop(settings, "Effects_Vignette_Feather")
+                        col.prop(settings, "Effects_Vignette_Midpoint")
+                    # Warp
+                    elif item.EffectGroup == "SAC_WARP":
+                        col.prop(settings, "Effects_Warp")
+                    # Error
+                    else:
+                        col.label(text="Oops, that's not supposed to happen.")
+                        col.label(text=f"Effect: {item.EffectGroup} was selected.")
+                        col.label(text="Please report this to us.")
+                        col.operator("wm.url_open", text="Our Discord").url = "https://discord.gg/cnFdGQP"
 
 classes = (
     SAC_PT_SAC_Panel,
