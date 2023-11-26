@@ -59,6 +59,10 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         row.label(text="v5.0.0")
 
         row = box.row()
+        row.label(text="Super Image Upscaler:")
+        row.label(text="v0.1.2")
+
+        row = box.row()
         row.label(text="Super Resolution Render:")
         row.label(text="v2.0.0")
 

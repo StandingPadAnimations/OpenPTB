@@ -2554,4 +2554,7 @@ def unregister_function():
     except (RuntimeError, Exception) as e:
         print(f"Failed to unregister SAC_Settings: {e}")
 
-    del bpy.types.Scene.sac_settings
+    try:
+        del bpy.types.Scene.sac_settings
+    except:
+        pass

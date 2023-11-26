@@ -11,6 +11,7 @@ from .super_fast_render import SFR_init
 from .super_advanced_camera import SAC_init, SAC_Functions
 from .super_real_sound import SRS_init
 from .super_image_denoiser import SID_init
+from .super_image_upscaler import SIU_init
 from .super_res_render import SRR_init
 from .super_render_farm import SRF_init
 from .super_easy_analytics import SEA_init
@@ -383,7 +384,10 @@ dev_mode = False
 
 def register():
     for cls in classes_pre:
-        bpy.utils.register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except (RuntimeError, Exception) as e:
+            print(f"Failed to register {cls}: {e}")
 
     # RELEASED
     PTB_init.register_function()
@@ -391,6 +395,7 @@ def register():
     SFR_init.register_function()
     SAC_init.register_function()
     SID_init.register_function()
+    SIU_init.register_function()
     SRR_init.register_function()
     SRF_init.register_function()
     # IN DEVELOPMENT
@@ -411,6 +416,7 @@ def unregister():
     # RELEASED
     SRF_init.unregister_function()
     SRR_init.unregister_function()
+    SIU_init.unregister_function()
     SID_init.unregister_function()
     SAC_init.unregister_function()
     SFR_init.unregister_function()

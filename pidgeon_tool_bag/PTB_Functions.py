@@ -31,13 +31,25 @@ class bcolors:
 
 #region dependencies
 
-dependency = namedtuple("dependency", ["module", "package", "name", "skip_import"])
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    index_url = "https://download.pytorch.org/whl/cpu"
+elif platform == "win32":
+    index_url = "https://download.pytorch.org/whl/cu118"
+elif platform == "darwin":
+    index_url = None
+
+dependency = namedtuple("dependency", ["module", "package", "name", "index_url", "skip_import"])
 
 required_dependencies = (
-    dependency(module="cv2", package="opencv-python", name="cv2", skip_import=False),
-    dependency(module="cv2", package="opencv-contrib-python", name="cv2", skip_import=False),
-    dependency(module="numpy", package="numpy", name="numpy", skip_import=False),
-    dependency(module="matplotlib", package="matplotlib", name="matplotlib", skip_import=False),
+    dependency(module="cv2", package="opencv-python", name="cv2", index_url=None, skip_import=False),
+    dependency(module="cv2", package="opencv-contrib-python", name="cv2", index_url=None, skip_import=False),
+    dependency(module="numpy", package="numpy", name="numpy", index_url=None, skip_import=False),
+    dependency(module="matplotlib", package="matplotlib", name="matplotlib", index_url=None, skip_import=False),
+    dependency(module="torch", package="torch", name="torch", index_url=index_url, skip_import=False),
+    dependency(module="torchvision", package="torchvision", name="torchvision", index_url=index_url, skip_import=False),
+    dependency(module="torchaudio", package="torchaudio", name="torchaudio", index_url=index_url, skip_import=False),
+    dependency(module="glob2", package="glob2", name="glob2", index_url=None, skip_import=False),
 )
 
 def import_module(module_name, global_name=None):
@@ -51,14 +63,14 @@ def import_module(module_name, global_name=None):
 
 def install_pip():
     try:
-        subprocess.run([sys.executable, "-m", "pip", "--version"], check=True)
+        subprocess.run([sys.executable, "-m", "pip", "--version", "--upgrade"], check=True)
     except subprocess.CalledProcessError:
         import ensurepip
 
         ensurepip.bootstrap()
         os.environ.pop("PIP_REQ_TRACKER", None)
 
-def install_module(module_name, package_name=None):
+def install_module(module_name, package_name=None, index_url=None):
     from pathlib import Path
 
     if package_name is None:
@@ -68,7 +80,10 @@ def install_module(module_name, package_name=None):
     module_path = Path.joinpath(Path(os.path.dirname(__file__)).parent, Path("python_modules"))
     if not module_path.exists():
         module_path.mkdir()
-    subprocess.run([sys.executable, "-m", "pip", "install", package_name, "-t", module_path], check=True, env=environ_dict)
+    if index_url is None:
+        subprocess.run([sys.executable, "-m", "pip", "install", package_name, "-t", module_path, "--upgrade"], check=True, env=environ_dict)
+    else:
+        subprocess.run([sys.executable, "-m", "pip", "install", package_name, "-t", module_path, "--index-url", index_url, "--upgrade"], check=True, env=environ_dict)
 
 
 class dependencies_check_singleton(object):
@@ -122,7 +137,7 @@ class dependencies_check_singleton(object):
             package_name = dependency.package if dependency.package is not None else dependency.module
             print(f"Installing {package_name}...")
             try:
-                install_module(module_name=dependency.module, package_name=dependency.package)
+                install_module(module_name=dependency.module, package_name=dependency.package, index_url=dependency.index_url)
             except (subprocess.CalledProcessError, ImportError) as err:
                 self._error = True
                 print(f"Error installing {package_name}!")
