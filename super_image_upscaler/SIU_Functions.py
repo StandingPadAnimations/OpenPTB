@@ -32,7 +32,7 @@ def upscale_image():
     model_primary_path = os.path.join(os.path.dirname(__file__), "esrgan", "models", settings.model_primary)
     model_secondary_path = os.path.join(os.path.dirname(__file__), "esrgan", "models", settings.model_secondary)
     device = torch.device(settings.device)
-    test_img_folder = os.path.join(settings.input_folder,'*')
+    test_img_folder = os.path.join(bpy.path.abspath(settings.input_folder),'*')
 
     print(bcolors.OKBLUE + "Loading models..." + bcolors.ENDC)
     # Primary
@@ -87,7 +87,7 @@ def upscale_image():
 
             output = (output_primary * (1 - settings.model_blend)) + (output_secondary * settings.model_blend)
 
-        cv2.imwrite(os.path.join(settings.output_folder, f"{settings.output_prefix}{base}{settings.output_suffix}.{settings.output_format}").format(base), output)
+        cv2.imwrite(os.path.join(bpy.path.abspath(settings.output_folder), f"{settings.output_prefix}{base}{settings.output_suffix}.{settings.output_format}").format(base), output)
 
     print(bcolors.SUCCESS + "Finished upscaling images."+ bcolors.ENDC, "\n")
 
