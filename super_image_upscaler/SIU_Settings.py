@@ -1,3 +1,5 @@
+
+import os
 import bpy
 
 from bpy.types import (
@@ -70,9 +72,29 @@ class SIU_Settings(PropertyGroup):
         default="cuda"
     )
 
+    mode_type: EnumProperty(
+        name="Mode Type",
+        description="The mode that will be used to upscale the images.",
+        items=(
+            ("nearest", "Nearest", "Uses the nearest pixel to upscale the images.\nThis mode works with the base model"),
+            ("bilinear", "Bilinear", "Uses the bilinear algorithm to upscale the images"),
+            ("bicubic", "Bicubic", "Uses the bicubic algorithm to upscale the images"),
+        ),
+        default="nearest"
+    )
+
+    scale_factor: EnumProperty(
+        name="Scale Factor",
+        description="The scale factor that will be used to upscale the images.",
+        items=(
+            ("0.5", "0.25x", "Downscales the images by 4x"),
+            ("1", "1x", "Does not upscale the images"),
+            ("2", "4x", "Upscales the images by 4x"),
+        ),
+        default="2"
+    )
+
     def get_model_list(self, context):
-        import os
-        import os.path as osp
         from glob import glob
 
         model_list = []

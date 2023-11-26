@@ -35,17 +35,21 @@ def upscale_image():
     test_img_folder = os.path.join(bpy.path.abspath(settings.input_folder),'*')
 
     print(bcolors.OKBLUE + "Loading models..." + bcolors.ENDC)
+    
+    def initialize_model(model_path, device):
+        model = RRDBNet(3, 3, 64, 23, gc=32)
+        model.load_state_dict(torch.load(model_path), strict=True)
+        model.eval()
+        return model.to(device)
+
     # Primary
-    model_primary = RRDBNet(3, 3, 64, 23, gc=32)
-    model_primary.load_state_dict(torch.load(model_primary_path), strict=True)
-    model_primary.eval()
-    model_primary = model_primary.to(device)
+    if settings.model_blend != 1.0:
+        model_primary = initialize_model(model_primary_path, device)
 
     # Secondary
-    model_secondary = RRDBNet(3, 3, 64, 23, gc=32)
-    model_secondary.load_state_dict(torch.load(model_secondary_path), strict=True)
-    model_secondary.eval()
-    model_secondary = model_secondary.to(device)
+    if settings.model_blend != 0.0:
+        model_secondary = initialize_model(model_secondary_path, device)
+
 
     print(bcolors.OKBLUE + "Models loaded successfully." + bcolors.ENDC)
 
@@ -63,28 +67,19 @@ def upscale_image():
         img_LR = img.unsqueeze(0)
         img_LR = img_LR.to(device)
 
+        def process_output(model, img_LR):
+            with torch.no_grad():
+                output = model(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+            output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
+            return (output * 255.0).round()
+
         if settings.model_blend == 0.0:
-            with torch.no_grad():
-                output = model_primary(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
-            output = (output * 255.0).round()
-
+            output = process_output(model_primary, img_LR)
         elif settings.model_blend == 1.0:
-            with torch.no_grad():
-                output = model_secondary(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
-            output = (output * 255.0).round()
+            output = process_output(model_secondary, img_LR)
         else:
-            with torch.no_grad():
-                output_primary = model_primary(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output_primary = np.transpose(output_primary[[2, 1, 0], :, :], (1, 2, 0))
-            output_primary = (output_primary * 255.0).round()
-
-            with torch.no_grad():
-                output_secondary = model_secondary(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output_secondary = np.transpose(output_secondary[[2, 1, 0], :, :], (1, 2, 0))
-            output_secondary = (output_secondary * 255.0).round()
-
+            output_primary = process_output(model_primary, img_LR)
+            output_secondary = process_output(model_secondary, img_LR)
             output = (output_primary * (1 - settings.model_blend)) + (output_secondary * settings.model_blend)
 
         cv2.imwrite(os.path.join(bpy.path.abspath(settings.output_folder), f"{settings.output_prefix}{base}{settings.output_suffix}.{settings.output_format}").format(base), output)
@@ -148,12 +143,15 @@ class RRDBNet(nn.Module):
         self.lrelu = nn.LeakyReLU(negative_slope=0.2, inplace=True)
 
     def forward(self, x):
+        settings = bpy.context.scene.siu_settings
         fea = self.conv_first(x)
         trunk = self.trunk_conv(self.RRDB_trunk(fea))
         fea = fea + trunk
 
-        fea = self.lrelu(self.upconv1(F.interpolate(fea, scale_factor=2, mode='nearest')))
-        fea = self.lrelu(self.upconv2(F.interpolate(fea, scale_factor=2, mode='nearest')))
+        # string to float
+        scale = float(settings.scale_factor)
+        fea = self.lrelu(self.upconv1(F.interpolate(fea, scale_factor=scale, mode=settings.mode_type)))
+        fea = self.lrelu(self.upconv2(F.interpolate(fea, scale_factor=scale, mode=settings.mode_type)))
         out = self.conv_last(self.lrelu(self.HRconv(fea)))
 
         return out
