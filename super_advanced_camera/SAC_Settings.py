@@ -29,6 +29,7 @@ class SAC_Settings(PropertyGroup):
         ('SAC_GHOST', 'Ghost', 'GHOST_DISABLED'),
         ('SAC_GRADIENTMAP', 'Gradient Map', 'SNAP_INCREMENT'),
         ('SAC_HALFTONE', 'Halftone', 'LIGHTPROBE_GRID'),
+        ('SAC_HDR', 'HDR', 'IMAGE_RGB_ALPHA'),
         ('SAC_INFRARED', 'Infrared', 'OUTLINER_DATA_LIGHT'),
         ('SAC_ISONOISE', 'ISO Noise', 'ALIGN_FLUSH'),
         ('SAC_MOSAIC', 'Mosaic', 'MOD_UVPROJECT'),
@@ -1845,6 +1846,105 @@ class SAC_Settings(PropertyGroup):
         min=1,
         subtype="FACTOR",
         update=update_Effects_Halftone_size
+    )
+
+    # HDR
+    # Blend
+
+    def update_Effects_HDR_blend(self, context):
+        scene = bpy.context.scene
+        settings = scene.sac_settings
+        # Get the current item from the list
+        index = context.scene.sac_effect_list_index
+        item = context.scene.sac_effect_list[index] if context.scene.sac_effect_list else None
+        node_name = f"{item.EffectGroup}_{item.ID}"
+        node_group_name = f".{node_name}"
+        bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Mix"].inputs[0].default_value = settings.Effects_HDR_blend
+
+        bpy.data.node_groups[".SAC Effects"].nodes[node_name].mute = False
+        if settings.Effects_HDR_blend == 0:
+            bpy.data.node_groups[".SAC Effects"].nodes[node_name].mute = True
+        
+    Effects_HDR_blend: FloatProperty(
+        name="Blend",
+        description="The strength of the HDR effect",
+        default=1,
+        max=1,
+        min=0,
+        subtype="FACTOR",
+        update=update_Effects_HDR_blend
+    )
+
+    # Sigma
+
+    def update_Effects_HDR_sigma(self, context):
+        scene = bpy.context.scene
+        settings = scene.sac_settings
+        # Get the current item from the list
+        index = context.scene.sac_effect_list_index
+
+        item = context.scene.sac_effect_list[index] if context.scene.sac_effect_list else None
+        node_group_name = f".{item.EffectGroup}_{item.ID}"
+
+        bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Sigma"].inputs[0].default_value = settings.Effects_HDR_sigma
+
+    Effects_HDR_sigma: FloatProperty(
+        name="Sigma",
+        description="The mix factor of the exposures of the HDR effect",
+        default=0.1,
+        max=1,
+        min=0.01,
+        subtype="FACTOR",
+        update=update_Effects_HDR_sigma
+    )
+
+    # Delta
+
+    def update_Effects_HDR_delta(self, context):
+        scene = bpy.context.scene
+        settings = scene.sac_settings
+        # Get the current item from the list
+        index = context.scene.sac_effect_list_index
+
+        item = context.scene.sac_effect_list[index] if context.scene.sac_effect_list else None
+        node_group_name = f".{item.EffectGroup}_{item.ID}"
+
+        bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Under"].inputs["Exposure"].default_value = -settings.Effects_HDR_delta
+        bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Over"].inputs["Exposure"].default_value = settings.Effects_HDR_delta
+
+    Effects_HDR_delta: FloatProperty(
+        name="Delta",
+        description="The range of the exposures of the HDR effect",
+        default=2,
+        max=10,
+        min=0.01,
+        subtype="FACTOR",
+        update=update_Effects_HDR_delta
+    )
+        
+    # Exposure
+
+    def update_Effects_HDR_exposure(self, context):
+        scene = bpy.context.scene
+        settings = scene.sac_settings
+        # Get the current item from the list
+        index = context.scene.sac_effect_list_index
+
+        item = context.scene.sac_effect_list[index] if context.scene.sac_effect_list else None
+        node_group_name = f".{item.EffectGroup}_{item.ID}"
+
+        bpy.data.node_groups[node_group_name].nodes["SAC Effects_HDR_Exposure"].inputs[1].default_value = settings.Effects_HDR_exposure
+
+    Effects_HDR_exposure: FloatProperty(
+        name="Exposure",
+        description="The additional exposure of the HDR effect",
+        default=-1.75,
+        max=100,
+        soft_max=10,
+        soft_min=-10,
+        min=-100,
+        subtype="FACTOR",
+        update=update_Effects_HDR_exposure
     )
 
     # Gradient Map
