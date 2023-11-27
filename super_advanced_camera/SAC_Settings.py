@@ -1,3 +1,4 @@
+import os
 import bpy
 import math
 
@@ -12,6 +13,7 @@ from bpy.props import (
     IntProperty,
     BoolProperty,
     PointerProperty,
+    StringProperty,
 )
 
 
@@ -2247,6 +2249,26 @@ class SAC_Settings(PropertyGroup):
         ),
         default='CAMERA',
         update=update_Effects_Bokeh_Type
+    )
+
+    def get_effect_presets(self, context):
+        items = []
+        directory = os.path.join(os.path.dirname(__file__), "presets")
+        for file in os.listdir(directory):
+            if file.endswith(".sacpe"):
+                items.append((file[:-6], file[:-6], ""))
+        return items
+
+    Effects_Presets: EnumProperty(
+        name="Presets",
+        description="A list of presets to quickly add effects",
+        items=get_effect_presets,
+    )
+
+    Effects_Preset_Name: StringProperty(
+        name="Preset Name",
+        description="The name of the preset to save",
+        default="My Preset",
     )
 
 
