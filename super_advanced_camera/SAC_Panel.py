@@ -367,8 +367,11 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                     boxcol.label(text="You need to initialize SAC to use this feature!", icon="ERROR")
                     boxcol.operator("superadvancedcamera.superadvancedcamerainit", text="Initialize Super Advanced Camera", icon="SHADERFX")
                 else:
-
-                    col = boxcol.column(align=True)
+                    col = boxcol.column()
+                    col.prop(settings, "Effects_Presets", text="Effect Presets")
+                    colrow = col.row(align=True)
+                    colrow.operator("superadvancedcamera.apply_effect_preset", icon="BRUSHES_ALL")
+                    colrow.operator("superadvancedcamera.open_preset_folder", icon="FILE_FOLDER", text="")
                     row = col.row(align=True)
                     left = row.column(align=True)
                     left.scale_x = 1
@@ -408,6 +411,7 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                     node_group_name = f".{item.EffectGroup}_{item.ID}"
 
                     col.label(text=f"Settings for: {item.name}.")
+                    #region effectgroups
                     # Bokeh
                     if item.EffectGroup == "SAC_BOKEH":
                         col.label(text="This effect is not viewport compatible.", icon="ERROR")
@@ -580,6 +584,12 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                         col.label(text=f"Effect: {item.EffectGroup} was selected.")
                         col.label(text="Please report this to us.")
                         col.operator("wm.url_open", text="Our Discord").url = "https://discord.gg/cnFdGQP"
+                    #endregion effectgroups
+
+                    boxpresets = boxcol.box()
+                    colrow = boxpresets.row(align=True)
+                    colrow.prop(settings, "Effects_Preset_Name", text="Custom Preset Name")
+                    colrow.operator("superadvancedcamera.add_effect_preset", icon="ADD", text="")
 
 classes = (
     SAC_PT_SAC_Panel,

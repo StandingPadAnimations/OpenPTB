@@ -1,4 +1,5 @@
 import bpy
+import json
 import os
 import mathutils
 from bpy.types import (
@@ -232,6 +233,151 @@ class SAC_OT_MoveEffectDown(Operator):
         list.move(index, index+1)
         context.scene.sac_effect_list_index = index + 1
         connect_renderLayer_node()
+        return {'FINISHED'}
+
+
+class SAC_OT_ApplyEffectPreset(Operator):
+    bl_idname = "superadvancedcamera.apply_effect_preset"
+    bl_label = "Apply Effect Preset"
+    bl_description = "Apply the selected effect preset to the list"
+
+    def execute(self, context: Context):
+        settings = context.scene.sac_settings
+  
+        # get the selected effect preset
+        effect_preset = settings.Effects_Presets
+        effect_preset_file = os.path.join(os.path.dirname(__file__), "presets", f"{effect_preset}.sacpe")
+        effect_preset_json = open(effect_preset_file, "r")
+        effect_preset_data = json.load(effect_preset_json)
+        effect_preset_json.close()
+
+        # print every effect name in the effect preset
+        for effect in effect_preset_data["effects"]:
+            context.scene.new_effect_type = effect["name"]
+            bpy.ops.superadvancedcamera.add_effect()
+            for setting in effect["settings"]:
+                setattr(settings, setting, effect["settings"][setting])
+
+
+        return {'FINISHED'}
+    
+class SAC_OT_OpenPresetFolder(Operator):
+    bl_idname = "superadvancedcamera.open_preset_folder"
+    bl_label = "Open Preset Folder"
+    bl_description = "Open the folder containing the effect presets"
+
+    def execute(self, context: Context):
+        presets_dir = os.path.join(os.path.dirname(__file__), "presets")
+        os.startfile(presets_dir)
+        return {'FINISHED'}
+    
+class SAC_OT_AddEffectPreset(Operator):
+    bl_idname = "superadvancedcamera.add_effect_preset"
+    bl_label = "Add Effect Preset"
+    bl_description = "Add the current effects to the selected effect preset"
+
+    def execute(self, context: Context):
+        settings = context.scene.sac_settings
+
+        preset_name = settings.Effects_Preset_Name
+        preset_file = os.path.join(os.path.dirname(__file__), "presets", f"{preset_name}.sacpe")
+        if not os.path.exists(preset_file):
+            preset_json = open(preset_file, "w")
+            preset_json.write("{\n\t\"effects\": [\n\t]\n}")
+            preset_json.close()
+        else:
+            self.report({'ERROR'}, "Preset already exists")
+  
+        # get every effect and its settings, and add it to the json file
+        effect_preset_json = open(preset_file, "r")
+        effect_preset_data = json.load(effect_preset_json)
+        effect_preset_json.close()
+        effect_list = []
+        effect_id = 0
+        for effect in context.scene.sac_effect_list:
+            # select each effect
+            context.scene.sac_effect_list_index = effect_id
+            effect_dict = {}
+            effect_dict["name"] = effect.EffectGroup
+            effect_dict["settings"] = {}
+            if effect.EffectGroup == "SAC_CHROMATICABERRATION":
+                effect_dict["settings"]["Effects_ChromaticAberration_Amount"] = settings.Effects_ChromaticAberration_Amount
+            elif effect.EffectGroup == "SAC_DUOTONE":
+                effect_dict["settings"]["Effects_Duotone_Color1"] = settings.Effects_Duotone_Color1
+                effect_dict["settings"]["Effects_Duotone_Color2"] = settings.Effects_Duotone_Color2
+                effect_dict["settings"]["Effects_Duotone_Blend"] = settings.Effects_Duotone_Blend
+            elif effect.EffectGroup == "SAC_EMBOSS":
+                effect_dict["settings"]["Effects_Emboss_Strength"] = settings.Effects_Emboss_Strength
+            elif effect.EffectGroup == "SAC_FILMGRAIN":
+                effect_dict["settings"]["Filmgrain_strength"] = settings.Filmgrain_strength
+                effect_dict["settings"]["Filmgrain_dustproportion"] = settings.Filmgrain_dustproportion
+                effect_dict["settings"]["Filmgrain_size"] = settings.Filmgrain_size
+            elif effect.EffectGroup == "SAC_FISHEYE":
+                effect_dict["settings"]["Effects_Fisheye"] = settings.Effects_Fisheye
+            elif effect.EffectGroup == "SAC_FOGGLOW":
+                effect_dict["settings"]["Effects_FogGlow_Strength"] = settings.Effects_FogGlow_Strength
+                effect_dict["settings"]["Effects_FogGlow_Threshold"] = settings.Effects_FogGlow_Threshold
+                effect_dict["settings"]["Effects_FogGlow_Size"] = settings.Effects_FogGlow_Size
+            elif effect.EffectGroup == "SAC_GHOST":
+                effect_dict["settings"]["Effects_Ghosts_Strength"] = settings.Effects_Ghost_Strength
+                effect_dict["settings"]["Effects_Ghosts_Threshold"] = settings.Effects_Ghost_Threshold
+                effect_dict["settings"]["Effects_Ghosts_Count"] = settings.Effects_Ghosts_Count
+                effect_dict["settings"]["Effects_Ghosts_Distortion"] = settings.Effects_Ghosts_Distortion
+            elif effect.EffectGroup == "SAC_GRADIENTMAP":
+                effect_dict["settings"]["Effects_GradientMap_blend"] = settings.Effects_GradientMap_blend
+            elif effect.EffectGroup == "SAC_HALFTONE":
+                effect_dict["settings"]["Effects_Halftone_value"] = settings.Effects_Halftone_value
+                effect_dict["settings"]["Effects_Halftone_delta"] = settings.Effects_Halftone_delta
+                effect_dict["settings"]["Effects_Halftone_size"] = settings.Effects_Halftone_size
+            elif effect.EffectGroup == "SAC_HDR":
+                effect_dict["settings"]["Effects_HDR_blend"] = settings.Effects_HDR_blend
+                effect_dict["settings"]["Effects_HDR_exposure"] = settings.Effects_HDR_exposure
+                effect_dict["settings"]["Effects_HDR_sigma"] = settings.Effects_HDR_sigma
+                effect_dict["settings"]["Effects_HDR_delta"] = settings.Effects_HDR_delta
+            elif effect.EffectGroup == "SAC_INFRARED":
+                effect_dict["settings"]["Effects_Infrared_Blend"] = settings.Effects_Infrared_Blend
+                effect_dict["settings"]["Effects_Infrared_Offset"] = settings.Effects_Infrared_Offset
+            elif effect.EffectGroup == "SAC_ISONOISE":
+                effect_dict["settings"]["ISO_strength"] = settings.ISO_strength
+                effect_dict["settings"]["ISO_size"] = settings.ISO_size
+            elif effect.EffectGroup == "SAC_MOSAIC":
+                effect_dict["settings"]["Effects_Pixelate_PixelSize"] = settings.Effects_Pixelate_PixelSize
+            elif effect.EffectGroup == "SAC_NEGATIVE":
+                effect_dict["settings"]["Effects_Negative"] = settings.Effects_Negative
+            elif effect.EffectGroup == "SAC_OVERLAY":
+                effect_dict["settings"]["Effects_Overlay_Strength"] = settings.Effects_Overlay_Strength
+            elif effect.EffectGroup == "SAC_PERSPECTIVESHIFT":
+                effect_dict["settings"]["Effects_PerspectiveShift_Horizontal"] = settings.Effects_PerspectiveShift_Horizontal
+                effect_dict["settings"]["Effects_PerspectiveShift_Vertical"] = settings.Effects_PerspectiveShift_Vertical
+            elif effect.EffectGroup == "SAC_POSTERIZE":
+                effect_dict["settings"]["Effects_Posterize_Steps"] = settings.Effects_Posterize_Steps
+            elif effect.EffectGroup == "SAC_STREAKS":
+                effect_dict["settings"]["Effects_Streaks_Strength"] = settings.Effects_Streaks_Strength
+                effect_dict["settings"]["Effects_Streaks_Threshold"] = settings.Effects_Streaks_Threshold
+                effect_dict["settings"]["Effects_Streaks_Count"] = settings.Effects_Streaks_Count
+                effect_dict["settings"]["Effects_Streaks_Length"] = settings.Effects_Streaks_Length
+                effect_dict["settings"]["Effects_Streaks_Fade"] = settings.Effects_Streaks_Fade
+                effect_dict["settings"]["Effects_Streaks_Angle"] = settings.Effects_Streaks_Angle
+                effect_dict["settings"]["Effects_Streaks_Distortion"] = settings.Effects_Streaks_Distortion
+            elif effect.EffectGroup == "SAC_VIGNETTE":
+                effect_dict["settings"]["Effects_Vignette_Intensity"] = settings.Effects_Vignette_Intensity
+                effect_dict["settings"]["Effects_Vignette_Roundness"] = settings.Effects_Vignette_Roundness
+                effect_dict["settings"]["Effects_Vignette_Feather"] = settings.Effects_Vignette_Feather
+                effect_dict["settings"]["Effects_Vignette_Midpoint"] = settings.Effects_Vignette_Midpoint
+            elif effect.EffectGroup == "SAC_WARP":
+                effect_dict["settings"]["Effects_Warp"] = settings.Effects_Warp
+            else:
+                print(f"Effect {effect.EffectGroup} not found or not supported")
+
+            effect_list.append(effect_dict)
+            effect_id += 1
+
+        effect_preset_data["effects"] = effect_list
+
+        effect_preset_json = open(preset_file, "w")
+        json.dump(effect_preset_data, effect_preset_json, indent=4)
+        effect_preset_json.close()
+
         return {'FINISHED'}
 
 
@@ -630,6 +776,9 @@ classes = (
     SAC_OT_RemoveEffect,
     SAC_OT_MoveEffectUp,
     SAC_OT_MoveEffectDown,
+    SAC_OT_ApplyEffectPreset,
+    SAC_OT_OpenPresetFolder,
+    SAC_OT_AddEffectPreset,
     SAC_OT_PreviousBokeh,
     SAC_OT_NextBokeh,
     SAC_OT_ApplyBokeh,
