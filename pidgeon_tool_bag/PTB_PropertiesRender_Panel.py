@@ -1,5 +1,5 @@
 import bpy
-from .PTB_Functions import word_wrap
+from .PTB_Functions import word_wrap, draw_notification
 from bpy.types import (
     Context,
     Panel,
@@ -34,13 +34,15 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
 
     def draw(self, context: Context):
         layout = self.layout
-        col = layout.column(align=True)
+        col = layout.column()
+        
+        draw_notification(col)
 
         box = col.box()
 
         row = box.row()
         row.label(text="Pidgeon Tool Bag:")
-        row.label(text="v1.2.0")
+        row.label(text="v1.2.1")
 
         row = box.row()
         row.label(text="Super Project Manager:")
@@ -69,8 +71,6 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         row = box.row()
         row.label(text="Super Render Farm:")
         row.label(text="v0.2.0")
-
-        col.separator(factor=0.5)
 
         box = col.box()
         

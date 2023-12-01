@@ -44,8 +44,8 @@ from bpy.props import (
 bl_info = {
     "name": "Pidgeon Tool Bag (PTB)",
     "author": "Kevin Lorengel, Crafto Hohenvels",
-    "version": (1, 2, 0),
-    "blender": (4, 0, 0),
+    "version": (1, 2, 1),
+    "blender": (4, 0, 1),
     "location": "",
     "description": "A collection of all Pidgeon Tools addons.",
     "warning": "",

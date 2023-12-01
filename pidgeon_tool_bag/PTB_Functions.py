@@ -150,6 +150,106 @@ dependencies = dependencies_check_singleton()
 
 #endregion dependencies
 
+#region version check
+
+def version_to_float(s, truncated=False):
+    """versioning is very dumb in this plugin, it sometimes use string format, sometimes blender use a list format ect.. ultimately in order to """
+    # Thanks, Geo-Scatter Team!
+        
+    if isinstance(s, (list, tuple, set)):
+        s = '.'.join(map(str, s))
+        
+    # remove unwanted substrings
+    for sub in ["Beta", "Alpha", "Release", "Candidate", " "]:
+        s = s.replace(sub, "")
+    
+    # split on dot and rejoin the first two parts with a dot, concatenate the rest
+    parts = s.split('.')
+    s = '.'.join(parts[:2]) + ''.join(parts[2:])
+    
+    # convert to float
+    s = float(s)
+    
+    # truncate to only essential version?
+    if (truncated):
+        s = int(s*10)/10
+
+    return s
+
+notifications = []
+
+def notification_check():
+    # Old Blender Version
+    # Experimental Blender Version
+    # Inofficial Blender Build
+    # Old PT Addons
+    # Dependencies not installed
+
+    # reset any previous notifications
+    global notifications
+    notifications = [
+        n for n in notifications if n[0] not in (
+            "OLD_BLENDER_VERSION",
+            "NEW_BLENDER_VERSION",
+            "EXP_BLENDER_VERSION",
+        )
+    ]
+
+    # current addon version
+    from .. __init__ import bl_info
+    user_addon_version = version_to_float(".".join(map(str,bl_info['blender'])), truncated=True)
+    user_blender_version = version_to_float(bpy.app.version_string, truncated=True)
+
+    # check if the user uses an old blender version
+    if (user_blender_version < user_addon_version):
+        print(f"{bcolors.WARNING}Blender version too old for plugin{bcolors.ENDC}")
+        notifications.append(("OLD_BLENDER_VERSION", user_blender_version, user_addon_version))
+
+    # check if the user uses a newer blender version
+    if (user_blender_version > user_addon_version):
+        print(f"{bcolors.WARNING}Blender version newer than tested{bcolors.ENDC}")
+        notifications.append(("NEW_BLENDER_VERSION", user_blender_version, user_addon_version))
+
+    # check if the user uses experimental builds
+    if (("Beta" in bpy.app.version_string) or ("Alpha" in bpy.app.version_string) or ("Candidate" in bpy.app.version_string)):
+        print(f"{bcolors.WARNING}Blender version is experimental{bcolors.ENDC}")
+        notifications.append(("EXP_BLENDER_VERSION"))
+
+    return None
+
+def draw_notification(layout):
+    col = layout.column().box().column()
+
+    for n in notifications:
+        n_type = n[0]
+
+        # Old Blender Version
+        if n_type == "OLD_BLENDER_VERSION":
+            col.label(text="You are using an old version of Blender. Some features may not work properly.", icon="ERROR")
+            col.label(text="Please update Blender to the latest supported version.", icon="BLANK1")
+            col.separator(factor=0.5)
+
+        # New Blender Version
+        elif n_type == "NEW_BLENDER_VERSION":
+            col.label(text="You are using a new version of Blender.", icon="ERROR")
+            col.label(text="Some features may not work properly. Please update the plugin.", icon="BLANK1")
+            col.label(text="If you already have the latest version, please test it, and report any bugs you may find.", icon="BLANK1")
+            col.label(text="You can report bugs in our Discord server.", icon="BLANK1")
+            col.operator("wm.url_open", text="Join Discord", icon="URL").url = "https://discord.gg/cnFdGQP"
+            col.separator(factor=0.5)
+
+        # Experimental Blender Version
+        elif n_type == "EXP_BLENDER_VERSION":
+            col.label(text="You are using an experimental version of Blender.", icon="ERROR")
+            col.label(text="Some features may not work properly.", icon="BLANK1")
+            col.separator(factor=0.5)
+        
+        return None
+        
+    col.label(text="You are using a supported version of Blender.", icon="INFO")
+    col.separator(factor=0.5)
+    
+#endregion version check
 
 @contextlib.contextmanager
 def suppress_stdout():
