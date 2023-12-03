@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import NodeTree
-from ...SAC_Functions import link_nodes, create_socket
-from ...filters.filter import get_filter
+from ....pidgeon_tool_bag.PTB_Functions import link_nodes, create_socket
+from ...SAC_Functions import get_filter
 
 
 def create_max_group() -> NodeTree:

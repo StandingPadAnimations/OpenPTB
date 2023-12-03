@@ -8,9 +8,8 @@ from bpy.types import (
 )
 from .groups.SuperAdvancedCamera import connect_renderLayer_node
 from .SAC_Settings import SAC_Settings
-from .SAC_Functions import link_nodes, load_image_once, create_dot_texture, hex_to_rgb
-from .filters.filter import get_filter
-from .gradients.gradients import get_gradient
+from .SAC_Functions import load_image_once, create_dot_texture, hex_to_rgb, get_gradient, get_filter
+from ..pidgeon_tool_bag.PTB_Functions import link_nodes
 
 
 class SAC_OT_Initialize(Operator):
@@ -305,6 +304,11 @@ class SAC_OT_AddEffectPreset(Operator):
             elif effect.EffectGroup == "SAC_DUOTONE":
                 effect_dict["settings"]["Effects_Duotone_Color1"] = settings.Effects_Duotone_Color1
                 effect_dict["settings"]["Effects_Duotone_Color2"] = settings.Effects_Duotone_Color2
+                effect_dict["settings"]["Effects_Duotone_Clamp"] = settings.Effects_Duotone_Blend
+                effect_dict["settings"]["Effects_Duotone_Color1_Start"] = settings.Effects_Duotone_Color1_Start
+                effect_dict["settings"]["Effects_Duotone_Color2_Start"] = settings.Effects_Duotone_Color2_Start
+                effect_dict["settings"]["Effects_Duotone_Color1_Mix"] = settings.Effects_Duotone_Color1_Mix
+                effect_dict["settings"]["Effects_Duotone_Color2_Mix"] = settings.Effects_Duotone_Color2_Mix
                 effect_dict["settings"]["Effects_Duotone_Blend"] = settings.Effects_Duotone_Blend
             elif effect.EffectGroup == "SAC_EMBOSS":
                 effect_dict["settings"]["Effects_Emboss_Strength"] = settings.Effects_Emboss_Strength
@@ -366,6 +370,18 @@ class SAC_OT_AddEffectPreset(Operator):
                 effect_dict["settings"]["Effects_Vignette_Midpoint"] = settings.Effects_Vignette_Midpoint
             elif effect.EffectGroup == "SAC_WARP":
                 effect_dict["settings"]["Effects_Warp"] = settings.Effects_Warp
+            elif effect.EffectGroup == "SAC_BLUR":
+                effect_dict["settings"]["Effects_Blur_Type"] = settings.Effects_Blur_Type
+                effect_dict["settings"]["Effects_Blur_Bokeh"] = settings.Effects_Blur_Bokeh
+                effect_dict["settings"]["Effects_Blur_Gamma"] = settings.Effects_Blur_Gamma
+                effect_dict["settings"]["Effects_Blur_Relative"] = settings.Effects_Blur_Relative
+                effect_dict["settings"]["Effects_Blur_AspectCorrection"] = settings.Effects_Blur_AspectCorrection
+                effect_dict["settings"]["Effects_Blur_FactorX"] = settings.Effects_Blur_FactorX
+                effect_dict["settings"]["Effects_Blur_FactorY"] = settings.Effects_Blur_FactorY
+                effect_dict["settings"]["Effects_Blur_SizeX"] = settings.Effects_Blur_SizeX
+                effect_dict["settings"]["Effects_Blur_SizeY"] = settings.Effects_Blur_SizeY
+                effect_dict["settings"]["Effects_Blur_Extend"] = settings.Effects_Blur_Extend
+                effect_dict["settings"]["Effects_Blur_Size"] = settings.Effects_Blur_Size
             else:
                 print(f"Effect {effect.EffectGroup} not found or not supported")
 

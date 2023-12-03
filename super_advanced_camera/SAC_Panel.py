@@ -142,6 +142,12 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                     col_clip = col.row(align=True)
                     col_clip.prop(camera_data, "clip_start", text="Min. Visible Distance")
                     col_clip.prop(camera_data, "clip_end", text="Max. Visible Distance")
+                    col.separator()
+
+                    col_film = col.row(align=True)
+                    col_film.prop(scene.cycles, "pixel_filter_type", text="Lens Blur Type")
+                    col_film = col.column()
+                    col_film.prop(scene.cycles, "filter_width", text="Lens Blur Strength")
 
                 boxbox = boxcol.box()
                 template_boxtitle(settings, boxbox, "bokeh", "Bokeh", "SEQ_CHROMA_SCOPE")
@@ -412,9 +418,27 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
 
                     col.label(text=f"Settings for: {item.name}.")
                     #region effectgroups
+                    # Blur
+                    if item.EffectGroup == "SAC_BLUR":
+                        col.prop(settings, "Effects_Blur_Type")
+                        row = col.row(align=True)
+                        row.prop(settings, "Effects_Blur_Bokeh", toggle=True)
+                        row.prop(settings, "Effects_Blur_Gamma", toggle=True)
+                        col.prop(settings, "Effects_Blur_Relative", toggle=True)
+                        row = col.row(align=True)
+                        row.prop(settings, "Effects_Blur_AspectCorrection", expand=True)
+                        if settings.Effects_Blur_Relative:
+                            col.prop(settings, "Effects_Blur_FactorX")
+                            col.prop(settings, "Effects_Blur_FactorY")
+                        else:
+                            row.enabled = False
+                            col.prop(settings, "Effects_Blur_SizeX")
+                            col.prop(settings, "Effects_Blur_SizeY")
+                        col.prop(settings, "Effects_Blur_Extend")
+                        col.prop(settings, "Effects_Blur_Size")
+
                     # Bokeh
-                    if item.EffectGroup == "SAC_BOKEH":
-                        col.label(text="This effect is not viewport compatible.", icon="ERROR")
+                    elif item.EffectGroup == "SAC_BOKEH":
                         col.prop(settings, "Effects_Bokeh_MaxSize")
                         col.prop(settings, "Effects_Bokeh_Offset")
                         col.prop(settings, "Effects_Bokeh_Range")
@@ -479,6 +503,13 @@ class SAC_PT_SAC_Panel(PTB_PT_Panel, Panel):
                         row = col.row(align=True)
                         row.prop(settings, "Effects_Duotone_Color2")
                         col.prop(settings, "Effects_Duotone_Blend")
+                        col.prop(settings, "Effects_Duotone_Clamp")
+                        row = col.row()
+                        row.prop(settings, "Effects_Duotone_Color1_Start")
+                        row.prop(settings, "Effects_Duotone_Color2_Start")
+                        row = col.row()
+                        row.prop(settings, "Effects_Duotone_Color1_Mix")
+                        row.prop(settings, "Effects_Duotone_Color2_Mix")
                     # Emboss
                     elif item.EffectGroup == "SAC_EMBOSS":
                         col.prop(settings, "Effects_Emboss_Strength")

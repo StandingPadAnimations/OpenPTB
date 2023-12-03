@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import NodeTree
 
-from ..SAC_Functions import link_nodes, create_socket
+from ...pidgeon_tool_bag.PTB_Functions import create_socket
 
 from .colorgrading.WhiteLevel import create_whitelevel_group
 from .colorgrading.Temperature import create_temperature_group
@@ -21,6 +21,7 @@ from .colorgrading.ShadowTint import create_shadowtint_group
 from .colorgrading.Curves import create_curves_group
 from .colorgrading.Colorwheels import create_colorwheel_group
 
+from .effects.Blur import create_blur_group
 from .effects.Bokeh import create_bokeh_group
 from .effects.ChromaticAberration import create_chromatic_group
 from .effects.Duotone import create_duotone_group
@@ -182,6 +183,7 @@ def create_main_group() -> NodeTree:
         return new_group
 
     node_mapping = {
+        "SAC_BLUR": create_blur_group,
         "SAC_BOKEH": create_bokeh_group,
         "SAC_CHROMATICABERRATION": create_chromatic_group,
         "SAC_DUOTONE": create_duotone_group,
