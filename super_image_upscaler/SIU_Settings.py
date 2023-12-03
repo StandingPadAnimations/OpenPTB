@@ -15,6 +15,12 @@ from bpy.props import (
 
 class SIU_Settings(PropertyGroup):
 
+    install_dependencies: BoolProperty(
+        name="Install Dependencies",
+        description="Installs the dependencies required by the Super Image Upscaler addon.\nThis is required for the Super Image Upscaler tools to work.\n\nThis will take up additional space on your disk.",
+        default=True
+    )
+
     ## General ##
 
     upscaler_type: EnumProperty(

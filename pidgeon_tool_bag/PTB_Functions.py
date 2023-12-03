@@ -43,11 +43,17 @@ elif platform == "darwin":
 
 dependency = namedtuple("dependency", ["module", "package", "name", "index_url", "skip_import"])
 
-required_dependencies = (
+sfr_dependencies = (
     dependency(module="cv2", package="opencv-python", name="cv2", index_url=None, skip_import=False),
     dependency(module="cv2", package="opencv-contrib-python", name="cv2", index_url=None, skip_import=False),
     dependency(module="numpy", package="numpy", name="numpy", index_url=None, skip_import=False),
     dependency(module="matplotlib", package="matplotlib", name="matplotlib", index_url=None, skip_import=False),
+)
+
+siu_dependencies = (
+    dependency(module="cv2", package="opencv-python", name="cv2", index_url=None, skip_import=False),
+    dependency(module="cv2", package="opencv-contrib-python", name="cv2", index_url=None, skip_import=False),
+    dependency(module="numpy", package="numpy", name="numpy", index_url=None, skip_import=False),
     dependency(module="torch", package="torch", name="torch", index_url=index_url, skip_import=False),
     dependency(module="torchvision", package="torchvision", name="torchvision", index_url=index_url, skip_import=False),
     dependency(module="torchaudio", package="torchaudio", name="torchaudio", index_url=index_url, skip_import=False),
@@ -115,10 +121,19 @@ class dependencies_check_singleton(object):
 
     # Methods
 
+    def merge_dependencies(self):
+        dependencies = ()
+        if bpy.context.scene.sfr_settings.install_dependencies:
+            dependencies = tuple(set(dependencies + sfr_dependencies))
+        if bpy.context.scene.siu_settings.install_dependencies:
+            dependencies = tuple(set(dependencies + siu_dependencies))
+        return dependencies
+
     def check_dependencies(self):
+        all_dependencies = self.merge_dependencies()
         self._checked = False
         try:
-            for dependency in required_dependencies:
+            for dependency in all_dependencies:
                 if dependency.skip_import: continue
                 print(f"Checking for {dependency.module}...")
                 import_module(dependency.module, dependency.name)
@@ -130,12 +145,13 @@ class dependencies_check_singleton(object):
         self._checked = True
 
     def install_dependencies(self):
+        all_dependencies = self.merge_dependencies()
         self._error = False
         self._success = False
         # Update pip
         print("Ensuring pip is installed...")
         install_pip()
-        for dependency in required_dependencies:
+        for dependency in all_dependencies:
             package_name = dependency.package if dependency.package is not None else dependency.module
             print(f"Installing {package_name}...")
             try:

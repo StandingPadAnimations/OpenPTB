@@ -14,6 +14,12 @@ from bpy.props import (
 
 class SFR_Settings(PropertyGroup):
 
+    install_dependencies: BoolProperty(
+        name="Install Dependencies",
+        description="Installs the dependencies required by the Super Fast Render addon.\nThis is required for the Super Fast Render tools to work.\n\nThis will take up additional space on your disk.",
+        default=True
+    )
+
     # Show Panels
 
     show_rso: BoolProperty(

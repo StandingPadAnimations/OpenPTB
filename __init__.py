@@ -170,7 +170,7 @@ class PTB_Preferences(bpy.types.AddonPreferences):
         row = col.row()
         row.scale_y = 1.5
         row.operator("pidgeontoolbag.check_dependencies", icon="FILE_REFRESH")
-        row.operator("pidgeontoolbag.install_dependencies", icon="FILE_FOLDER")
+        row.operator("pidgeontoolbag.install_dependencies", icon="SORT_ASC")
         
         ### SUPER RENDER FARM ###
 #region SuperRenderFarm

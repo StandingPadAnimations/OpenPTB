@@ -1,4 +1,5 @@
 import bpy
+from .PTB_Functions import word_wrap
 from bpy.types import (
     Operator
 )
@@ -37,6 +38,51 @@ class PTB_OT_InstallDependencies(Operator):
         if dependencies.error:
             return {'CANCELLED'}
         return {'FINISHED'}
+    
+    def draw(self, context):
+        mas_chars = 55
+        layout = self.layout
+        col = layout.column()
+        col.label(text="Information about the installation of dependencies:")
+        box = col.box()
+        box.label(text="Duration of Installation:")
+        word_wrap(
+            string="Please be aware that installing dependencies may take a significant amount of time.\nThis duration can vary depending on the speed of your internet connection and the performance of your computer.",
+            layout=box,
+            max_char=mas_chars
+        )
+        box = col.box()
+        box.label(text="Do Not Close Blender:")
+        word_wrap(
+            string="It's crucial that you do not close Blender while the dependencies are being installed.\nBut if you must close Blender, you can resume the installation at any time by clicking the 'Install Dependencies' button again.",
+            layout=box,
+            max_char=mas_chars
+        )
+        box = col.box()
+        box.label(text="Monitoring Progress:")
+        word_wrap(
+            string="If you wish to monitor the progress of the installation, you can do so by opening the console. This can be done by clicking on the 'Toggle Console' button.\nThe console will provide you with real-time updates and messages regarding the installation process.",
+            layout=box,
+            max_char=mas_chars
+        )
+        box = col.box()
+        box.label(text="Disk Space Consideration:")
+        word_wrap(
+            string="Be aware that choosing to install the full set of dependencies will require additional disk space.\nEnsure that your system has sufficient space available to accommodate these files.",
+            layout=box,
+            max_char=mas_chars
+        )
+        col.operator("wm.console_toggle", text="Toggle Console")
+        col.label(text="Addons requiering additional Dependencies:")
+        row = col.row()
+        row.label(text="- Super Fast Render")
+        row.prop(bpy.context.scene.sfr_settings, "install_dependencies", text="Install? (~230MB)", toggle=True)
+        row = col.row()
+        row.label(text="- Super Image Upscaler")
+        row.prop(bpy.context.scene.siu_settings, "install_dependencies", text="Install? (~5GB)", toggle=True)
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
     
 class PTB_OT_OpenAddonPrefs(Operator):
     bl_idname = "pidgeontoolbag.open_addon_prefs"
