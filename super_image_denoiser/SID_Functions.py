@@ -2,21 +2,10 @@ import bpy
 import os
 from math import ceil
 from bpy.types import Node, NodeTree
-from ..pidgeon_tool_bag.PTB_Functions import bcolors
+from ..pidgeon_tool_bag.PTB_Functions import bcolors, link_nodes
 from ..presets.FFmpeg import *
 
 # region Node Tools
-
-def link_nodes(tree: NodeTree, output: Node, output_socket, input: Node, input_socket) -> None:
-    if isinstance(input_socket, bpy.types.NodeSocket):
-        tree.links.new(output.outputs[output_socket], input_socket)
-        return
-    tree.links.new(output.outputs[output_socket], input.inputs[input_socket])
-
-
-def create_socket(tree: NodeTree, socket_name: str, socket_type: str, socket_in_out: str, socket_parent=None) -> None:
-    tree.interface.new_socket(name=socket_name, in_out=socket_in_out, socket_type=socket_type, parent=socket_parent)
-
 
 def create_panel(tree: NodeTree, panel_name: str):
     return (tree.interface.new_panel(name=panel_name, default_closed=True))

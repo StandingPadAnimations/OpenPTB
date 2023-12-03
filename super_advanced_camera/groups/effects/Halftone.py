@@ -1,8 +1,6 @@
 import bpy
 from bpy.types import NodeTree
-from ...SAC_Functions import link_nodes, create_socket
-
-
+from ....pidgeon_tool_bag.PTB_Functions import link_nodes, create_socket
 
 def create_halftone_group() -> NodeTree:
 
@@ -61,10 +59,10 @@ def create_halftone_group() -> NodeTree:
     # Create the links
     link_nodes(sac_halftone_group, input_node, 0, separate_rgb_node, 0)
     link_nodes(sac_halftone_group, input_node, 0, rgb_to_bw_node, 0)
-    link_nodes(sac_halftone_group, rgb_to_bw_node, 0, halftone_part_group_node_c, "Image Input")
-    link_nodes(sac_halftone_group, separate_rgb_node, 0, halftone_part_group_node_r, "Image Input")
-    link_nodes(sac_halftone_group, separate_rgb_node, 1, halftone_part_group_node_g, "Image Input")
-    link_nodes(sac_halftone_group, separate_rgb_node, 2, halftone_part_group_node_b, "Image Input")
+    link_nodes(sac_halftone_group, rgb_to_bw_node, 0, halftone_part_group_node_c, "Image")
+    link_nodes(sac_halftone_group, separate_rgb_node, 0, halftone_part_group_node_r, "Image")
+    link_nodes(sac_halftone_group, separate_rgb_node, 1, halftone_part_group_node_g, "Image")
+    link_nodes(sac_halftone_group, separate_rgb_node, 2, halftone_part_group_node_b, "Image")
     link_nodes(sac_halftone_group, texture_node, 0, halftone_part_group_node_c, "Dots")
     link_nodes(sac_halftone_group, texture_node, 0, halftone_part_group_node_r, "Dots")
     link_nodes(sac_halftone_group, texture_node, 0, halftone_part_group_node_g, "Dots")
@@ -175,7 +173,7 @@ def halftonepart_group() -> NodeTree:
     greater_than_node.inputs[1].default_value = 0.018
 
     # Create the links
-    link_nodes(halftone_part_group, input_node, "Image Input", color_ramp_node_1, 0)
+    link_nodes(halftone_part_group, input_node, "Image", color_ramp_node_1, 0)
     link_nodes(halftone_part_group, color_ramp_node_1, 0, math_multiply_node, 0)
     link_nodes(halftone_part_group, input_node, "Dots", math_multiply_node, 1)
     link_nodes(halftone_part_group, input_node, "Value", math_add_node_1, 0)
