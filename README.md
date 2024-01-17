@@ -18,3 +18,6 @@ Pidgeon Toolbag is licensed under GPL, as all Blender addons have to be. Thus, t
 
 # Why is this behind the current version of Pidgeon Toolbag?
 I only had the cloned Git repo up to December 3rd, 2023, around the beta release of v1.0.
+
+# How do I see the original source code?
+Check the `old-main` branch
