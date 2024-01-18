@@ -42,14 +42,13 @@ from bpy.props import (
 )
 
 bl_info = {
-    "name": "Pidgeon Tool Bag (PTB)",
-    "author": "Kevin Lorengel, Crafto Hohenvels",
-    "version": (1, 2, 1),
+    "name": "OpenPTB",
+    "author": "Forked by Mahid, initally Kevin Lorengel, Crafto Hohenvels",
+    "version": (1, 0, 0),
     "blender": (4, 0, 1),
     "location": "",
-    "description": "A collection of all Pidgeon Tools addons.",
-    "warning": "",
-    "wiki_url": "https://discord.gg/cnFdGQP",
+    "description": "",
+    "warning": "A truly open source version of PTB",
     "endpoint_url": "",
     "tracker_url": "",
     "category": "",
