@@ -82,26 +82,6 @@ class PTB_PT_Info_Panel(PTB_PT_Panel, Panel):
         )
 
 
-class PTB_PT_Socials_Panel(PTB_PT_Panel, Panel):
-    bl_label = "Our Socials"
-    bl_parent_id = "PTB_PT_PTB_Panel"
-
-    def draw_header(self, context):
-        layout = self.layout
-        layout.label(text="", icon="FUND")
-
-    def draw(self, context):
-        layout = self.layout
-        col = layout.column()
-        col.operator("wm.url_open", text="Join our Discord!").url = "https://discord.gg/cnFdGQP"
-        row = col.row()
-        row.operator("wm.url_open", text="YouTube").url = "https://www.youtube.com/channel/UCgLo3l_ZzNZ2BCQMYXLiIOg"
-        row.operator("wm.url_open", text="BlenderMarket").url = "https://blendermarket.com/creators/kevin-lorengel"
-        row.operator("wm.url_open", text="Instagram").url = "https://www.instagram.com/pidgeontools/"
-        row.operator("wm.url_open", text="Twitter").url = "https://twitter.com/PidgeonTools"
-        col.operator("wm.url_open", text="Support and Feedback!", icon="HELP").url = "https://discord.gg/cnFdGQP"
-
-
 classes = (
     PTB_PT_PTB_Panel,
 )
