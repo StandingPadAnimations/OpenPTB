@@ -10,3 +10,4 @@ python_modules
 # Release files
 *.zip
 *.pth
+build
