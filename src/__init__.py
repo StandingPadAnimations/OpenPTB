@@ -375,7 +375,6 @@ classes_pre = (
 
 classes_post = (
     PTB_PropertiesRender_Panel.PTB_PT_Info_Panel,
-    PTB_PropertiesRender_Panel.PTB_PT_Socials_Panel,
 )
 
 classes_all = classes_pre + classes_post
